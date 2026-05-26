@@ -70,7 +70,7 @@
         .error-msg { color: var(--danger); font-size: 14px; display: none; margin-top: 15px; }
 
         /* --- 📱 APP LAYOUT (MOBILE FIRST) --- */
-        #app-content { display: none; padding-bottom: 80px; /* Spazio per la bottom nav */ }
+        #app-content { display: none; padding-bottom: 80px; }
         
         .topbar {
             padding: 20px;
@@ -123,11 +123,23 @@
         .nav-item i { font-size: 20px; }
         .nav-item.active { color: var(--accent); }
 
-        /* Desktop Adjustments */
+        /* Desktop Adjustments - LA CURA PER LO SCHERMO GIGANTE */
         @media (min-width: 768px) {
-            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+            .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
             .bottom-nav { display: none; }
             #app-content { padding-bottom: 0; }
+            
+            /* IL RECINTO TATTICO PER IL PC */
+            .topbar { 
+                max-width: 1200px; 
+                margin: 0 auto; 
+                border-radius: 0 0 16px 16px;
+            }
+            .content-area { 
+                max-width: 1200px; 
+                margin: 0 auto; 
+                padding: 40px 20px; 
+            }
         }
     </style>
 </head>
@@ -186,28 +198,13 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Campionato</th>
+                                <th>Squadra / Target</th>
                                 <th>Stato</th>
                                 <th>Efficienza</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><strong>Serie D (Gir. C)</strong></td>
-                                <td><span class="badge">Sincronizzato</span></td>
-                                <td>88.4%</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Ligue 2</strong></td>
-                                <td><span class="badge">Sincronizzato</span></td>
-                                <td>91.2%</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Championship</strong></td>
-                                <td><span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">In Coda</span></td>
-                                <td>94.5%</td>
-                            </tr>
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -278,7 +275,7 @@
             document.getElementById('table-title').innerText = title;
         }
 
-        // --- LA FUNZIONE MANCANTE PER GLI STORICI ---
+        // --- FUNZIONE PER GLI STORICI DA SUPABASE ---
         async function caricaDatiDatabase() {
             const corpoTabella = document.querySelector("tbody");
             corpoTabella.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin" style="color: var(--accent); font-size: 24px;"></i><br><br><span style="color: var(--text-secondary);">Estrazione dati storici in corso...</span></td></tr>';
@@ -289,7 +286,10 @@
             }
 
             try {
-                // ⚠️ MODIFICA 'nome_tua_tabella' CON QUELLO CHE HAI SU SUPABASE
+                // =====================================================================
+                // ⚠️ ATTENZIONE MISTER: Modifica 'nome_tua_tabella' con il nome 
+                // esatto della tabella che hai creato dentro Supabase!
+                // =====================================================================
                 const { data, error } = await window.zsDB.from('nome_tua_tabella').select('*').limit(50);
 
                 if (error) throw error;
@@ -297,7 +297,9 @@
                 if (data && data.length > 0) {
                     corpoTabella.innerHTML = ''; 
                     data.forEach(riga => {
-                        // ⚠️ MODIFICA I NOMI DELLE COLONNE
+                        // =====================================================================
+                        // ⚠️ MODIFICA I NOMI DELLE COLONNE CON I NOMI REALI CHE USI SU SUPABASE
+                        // =====================================================================
                         const nomeSquadra = riga.nome_squadra || 'Squadra Sconosciuta';
                         const efficienza = riga.valore_efficienza || 'N/A';
                         const stato = 'Storico Attivo'; 
@@ -311,7 +313,7 @@
                         `;
                     });
                 } else {
-                    corpoTabella.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: var(--text-secondary);">Nessun dato trovato su Supabase.</td></tr>';
+                    corpoTabella.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: var(--text-secondary);">Nessun dato trovato su Supabase. Lancia lo script Python.</td></tr>';
                 }
             } catch (err) {
                 console.error("Errore Supabase:", err);
