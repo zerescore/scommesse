@@ -1,6 +1,12 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "env": {
+    "APP_PASSWORD": "Mister2026",
+    "SUPABASE_URL": "https://qfshfjphjshrpwdnsekn.supabase.co",
+    "SUPABASE_KEY": "sb_publishable_04abaz97o0BG-VDl-kyHVg_d4zgdDqD",
+    "API_KEY_FOOTBALL": "dbbb7986bcaeb46218aac93cc169e420"
+  },
   "routes": [
     {
       "src": "/(.*)",

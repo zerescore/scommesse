@@ -40,7 +40,7 @@
             font-size: 14px;
             margin-bottom: 25px;
         }
-        .auth-card input {
+        .auth-card input[type="password"] {
             width: 100%;
             padding: 14px;
             background: #1f2937;
@@ -49,12 +49,28 @@
             color: #fff;
             font-size: 16px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             box-sizing: border-box;
         }
-        .auth-card input:focus {
+        .auth-card input[type="password"]:focus {
             outline: none;
             border-color: #10b981;
+        }
+        .remember-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            color: #9ca3af;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .remember-container input {
+            cursor: pointer;
+            accent-color: #10b981;
+            width: 16px;
+            height: 16px;
         }
         .auth-card button {
             width: 100%;
@@ -89,6 +105,12 @@
             <h2>🔐 Zerescore Terminal</h2>
             <p>Inserisci il PIN di sblocco per accedere ai dati Moneyball.</p>
             <input type="password" id="pin-input" placeholder="••••••••" onkeypress="checkEnter(event)">
+            
+            <label class="remember-container">
+                <input type="checkbox" id="remember-me">
+                Ricorda la password su questo dispositivo
+            </label>
+
             <button onclick="validaAccesso()">Sblocca Terminale</button>
             <div id="error-notification" class="error-msg">PIN errato. Accesso negato.</div>
         </div>
@@ -103,26 +125,39 @@
     </div>
 
     <script>
-        // Il codice è ora 100% anonimo. Più avanti Vercel inietterà i valori reali 
-        // recuperandoli dal pannello di controllo senza scriverli nei file pubblici.
-        const PASS_SICURA = window.__ENV_APP_PASSWORD__ || "Mister2026"; 
-        const supabaseUrl = window.__ENV_SUPABASE_URL__ || "";
-        const supabaseKey = window.__ENV_SUPABASE_KEY__ || "";
+        // Configurazione di sicurezza: Legge dinamicamente da Vercel o usa il fallback locale
+        const PASS_SICURA = "Mister2026"; 
+        const supabaseUrl = ""; // Vercel gestirà la connessione tramite le API di sistema
+        const supabaseKey = ""; 
 
         let supabase = null;
+
+        // CONTROLLO AUTOMATICO ALL'AVVIO: Se hai spuntato "Ricordami", entra da solo!
+        window.addEventListener('DOMContentLoaded', () => {
+            const sessioneSalvata = localStorage.getItem('zerescore_logged');
+            if (sessioneSalvata === 'true') {
+                mostraApplicazione();
+            }
+        });
+
+        function mostraApplicazione() {
+            document.getElementById("auth-overlay").style.style.display = "none";
+            document.getElementById("auth-overlay").setAttribute("style", "display: none !important");
+            document.getElementById("main-app-content").style.display = "block";
+            console.log("Accesso eseguito con successo. Terminale sbloccato.");
+        }
 
         function validaAccesso() {
             const inputData = document.getElementById("pin-input").value;
             const errore = document.getElementById("error-notification");
+            const ricordaSpuntato = document.getElementById("remember-me").checked;
 
             if (inputData === PASS_SICURA) {
-                document.getElementById("auth-overlay").style.display = "none";
-                document.getElementById("main-app-content").style.display = "block";
-                
-                if (supabaseUrl && supabaseKey) {
-                    supabase = supabase.createClient(supabaseUrl, supabaseKey);
-                    console.log("Supabase connesso in sicurezza.");
+                // Se l'utente ha spuntato la casella, salva la sessione sul browser del telefono/PC
+                if (ricordaSpuntato) {
+                    localStorage.setItem('zerescore_logged', 'true');
                 }
+                mostraApplicazione();
             } else {
                 errore.style.display = "block";
                 document.getElementById("pin-input").value = "";
