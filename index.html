@@ -65,6 +65,7 @@
             color: #9ca3af;
             font-size: 14px;
             cursor: pointer;
+            user-select: none;
         }
         .remember-container input {
             cursor: pointer;
@@ -125,14 +126,9 @@
     </div>
 
     <script>
-        // Configurazione di sicurezza: Legge dinamicamente da Vercel o usa il fallback locale
         const PASS_SICURA = "Mister2026"; 
-        const supabaseUrl = ""; // Vercel gestirà la connessione tramite le API di sistema
-        const supabaseKey = ""; 
 
-        let supabase = null;
-
-        // CONTROLLO AUTOMATICO ALL'AVVIO: Se hai spuntato "Ricordami", entra da solo!
+        // CONTROLLO AUTOMATICO RICORDAMI ALL'AVVIO
         window.addEventListener('DOMContentLoaded', () => {
             const sessioneSalvata = localStorage.getItem('zerescore_logged');
             if (sessioneSalvata === 'true') {
@@ -141,10 +137,9 @@
         });
 
         function mostraApplicazione() {
-            document.getElementById("auth-overlay").style.style.display = "none";
-            document.getElementById("auth-overlay").setAttribute("style", "display: none !important");
+            document.getElementById("auth-overlay").style.display = "none";
             document.getElementById("main-app-content").style.display = "block";
-            console.log("Accesso eseguito con successo. Terminale sbloccato.");
+            console.log("Accesso eseguito. Terminale sbloccato.");
         }
 
         function validaAccesso() {
@@ -153,7 +148,6 @@
             const ricordaSpuntato = document.getElementById("remember-me").checked;
 
             if (inputData === PASS_SICURA) {
-                // Se l'utente ha spuntato la casella, salva la sessione sul browser del telefono/PC
                 if (ricordaSpuntato) {
                     localStorage.setItem('zerescore_logged', 'true');
                 }
