@@ -77,7 +77,6 @@
             margin-top: 10px;
             display: none;
         }
-        /* Interfaccia Principale dell'Applicazione */
         #main-app-content {
             display: none;
         }
@@ -104,14 +103,11 @@
     </div>
 
     <script>
-        // CONFIGURAZIONE SICUREZZA & CHIAVI ANODIZZATE
-        const PASS_SICURA = "Mister2026"; 
-
-        // Rilevamento automatico Ambiente (PC locale vs Cloud Vercel)
-        const isLocale = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        
-        const supabaseUrl = isLocale ? "INSERISCI_QUI_IL_TUO_URL_SUPABASE_PER_I_TEST_SU_PC" : window.__ENV_SUPABASE_URL__;
-        const supabaseKey = isLocale ? "INSERISCI_QUI_LA_TUA_ANON_KEY_PER_I_TEST_SU_PC" : window.__ENV_SUPABASE_KEY__;
+        // Il codice è ora 100% anonimo. Più avanti Vercel inietterà i valori reali 
+        // recuperandoli dal pannello di controllo senza scriverli nei file pubblici.
+        const PASS_SICURA = window.__ENV_APP_PASSWORD__ || "Mister2026"; 
+        const supabaseUrl = window.__ENV_SUPABASE_URL__ || "";
+        const supabaseKey = window.__ENV_SUPABASE_KEY__ || "";
 
         let supabase = null;
 
@@ -120,15 +116,12 @@
             const errore = document.getElementById("error-notification");
 
             if (inputData === PASS_SICURA) {
-                // Distrugge la schermata di blocco e attiva la dashboard
                 document.getElementById("auth-overlay").style.display = "none";
                 document.getElementById("main-app-content").style.display = "block";
                 
-                // Inizializza Supabase in modo sicuro solo ad accesso eseguito
                 if (supabaseUrl && supabaseKey) {
                     supabase = supabase.createClient(supabaseUrl, supabaseKey);
-                    console.log("Supabase connesso in modo sicuro. Caricamento dati...");
-                    // Qui puoi richiamare la tua vecchia funzione caricaDati() se presente
+                    console.log("Supabase connesso in sicurezza.");
                 }
             } else {
                 errore.style.display = "block";
