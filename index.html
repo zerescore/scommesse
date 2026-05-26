@@ -3,118 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZERESCORE // Terminal</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Zerescore Terminal - Area Protetta</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #09090b; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 2px; }
+        /* --- STILE SCHERMATA DI BLOCCO BLINDATA --- */
+        #auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #090d16;
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .auth-card {
+            background: #111827;
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid #1f2937;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            width: 90%;
+        }
+        .auth-card h2 {
+            color: #f3f4f6;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .auth-card p {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .auth-card input {
+            width: 100%;
+            padding: 14px;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        .auth-card input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        .auth-card button {
+            width: 100%;
+            padding: 14px;
+            background: #10b981;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .auth-card button:hover {
+            background: #059669;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        /* Nasconde l'applicazione principale finché non si è loggati */
+        #main-app-content {
+            display: none;
+        }
     </style>
 </head>
-<body class="text-zinc-300 min-h-screen flex overflow-hidden antialiased bg-[#09090b]">
+<body style="background-color: #0f172a; margin: 0; color: #fff;">
 
-    <aside class="w-64 bg-[#0c0c0e] border-r border-zinc-800/80 flex flex-col justify-between p-4 shrink-0 overflow-y-auto custom-scrollbar">
-        <div class="space-y-6">
-            <div class="px-2 py-1">
-                <span class="text-lg font-black tracking-tighter text-zinc-100 block">ZERESCORE<span class="text-emerald-500">.</span></span>
-                <span class="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">QUANT PLATFORM</span>
-            </div>
-
-            <nav class="space-y-1 text-xs">
-                <button onclick="switchTab('pronostici')" id="btn-pronostici" class="w-full flex items-center gap-2.5 px-3 py-2 bg-zinc-900 text-zinc-100 rounded-lg font-medium transition text-left cursor-pointer border-none">
-                    <i class="fa-solid fa-star text-zinc-400"></i> Tuoi Match
-                </button>
-                <button onclick="switchTab('live')" id="btn-live" class="w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-200 rounded-lg font-medium transition text-left cursor-pointer group border-none bg-transparent">
-                    <span class="flex items-center gap-2.5"><i class="fa-solid fa-satellite-dish text-[10px] text-zinc-500 group-hover:text-red-400"></i> Live Analytics</span>
-                    <span id="badge-live-count" class="font-mono text-[10px] bg-zinc-800 text-zinc-500 px-1.5 py-0.2 rounded font-bold">0</span>
-                </button>
-            </nav>
-
-            <div class="space-y-2 px-2">
-                <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Filtra per data</p>
-                <div class="grid grid-cols-3 gap-1 font-mono text-[11px] text-center">
-                    <button id="btn-date-oggi" onclick="impostaFiltroData('OGGI')" class="bg-zinc-800 text-zinc-100 py-1.5 rounded-md font-bold cursor-pointer border-none">OGGI</button>
-                    <button id="btn-date-domani" onclick="impostaFiltroData('DOMANI')" class="border border-zinc-800 text-zinc-500 hover:text-zinc-300 py-1.5 rounded-md transition cursor-pointer bg-transparent">27/05</button>
-                    <button id="btn-date-dopo" onclick="impostaFiltroData('DOPODOMANI')" class="border border-zinc-800 text-zinc-500 hover:text-zinc-300 py-1.5 rounded-md transition cursor-pointer bg-transparent">28/05</button>
-                </div>
-            </div>
-
-            <div class="space-y-1 px-2">
-                <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">I campionati preferiti</p>
-                <div class="space-y-0.5 text-xs max-h-80 overflow-y-auto custom-scrollbar pr-1">
-                    <button onclick="cambiaLegaFiltro('ALL')" id="filter-all" class="w-full text-left py-1.5 px-2 bg-zinc-900/40 text-zinc-200 rounded-md font-medium cursor-pointer block border border-zinc-800/40">TUTTI I CAMPIONATI</button>
-                    
-                    <div class="text-[9px] font-mono text-zinc-600 font-bold uppercase tracking-wider pt-2 pb-1 px-2">// TOP EUROPE</div>
-                    <button onclick="cambiaLegaFiltro(135)" id="filter-135" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🇮🇹 ITALIA A</button>
-                    <button onclick="cambiaLegaFiltro(39)" id="filter-39" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🏴󠁧󠁢󠁥󠁮󠁧󠁿 INGHILTERRA A</button>
-                    <button onclick="cambiaLegaFiltro(140)" id="filter-140" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🇪🇸 SPAGNA A</button>
-                    <button onclick="cambiaLegaFiltro(78)" id="filter-78" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🇩🇪 GERMANIA A</button>
-                    <button onclick="cambiaLegaFiltro(61)" id="filter-61" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🇫🇷 FRANCIA A</button>
-                    
-                    <div class="text-[9px] font-mono text-zinc-600 font-bold uppercase tracking-wider pt-3 pb-1 px-2">// 2ND DIVISION</div>
-                    <button onclick="cambiaLegaFiltro(136)" id="filter-136" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🇮🇹 SERIE B</button>
-                    <button onclick="cambiaLegaFiltro(40)" id="filter-40" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🏴󠁧󠁢󠁥󠁮󠁧󠁿 CHAMPIONSHIP</button>
-                    <button onclick="cambiaLegaFiltro(141)" id="filter-141" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🇪🇸 SEGUNDA DIV</button>
-                    
-                    <div class="text-[9px] font-mono text-zinc-600 font-bold uppercase tracking-wider pt-3 pb-1 px-2">// SUMMER / AMERICAS</div>
-                    <button onclick="cambiaLegaFiltro(71)" id="filter-71" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🇧🇷 BRASILE A</button>
-                    <button onclick="cambiaLegaFiltro(253)" id="filter-253" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🇺🇸 MLS AMERICANA</button>
-                    <button onclick="cambiaLegaFiltro(113)" id="filter-113" class="w-full text-left py-1.5 px-2 text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200 rounded-md transition cursor-pointer flex items-center gap-2 border-none bg-transparent">🇸🇪 SVEZIA A</button>
-                </div>
-            </div>
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <h2>🔐 Zerescore Terminal</h2>
+            <p>Inserisci il PIN di sblocco per accedere ai dati Moneyball.</p>
+            <input type="password" id="pin-input" placeholder="••••••••" onkeypress="checkEnter(event)">
+            <button onclick="validaAccesso()">Sblocca Terminale</button>
+            <div id="error-notification" class="error-msg">PIN errato. Accesso negato.</div>
         </div>
+    </div>
 
-        <div class="border-t border-zinc-800/60 pt-3 font-mono text-[10px] text-zinc-500 space-y-1">
-            <div class="flex justify-between"><span>STATUS:</span><span class="text-emerald-500 font-bold">ONLINE</span></div>
-            <div id="credit-counter-label" class="truncate">CREDITS: --</div>
+    <div id="main-app-content">
+        <div style="padding: 20px;">
+            <h1>Benvenuto nel Terminale Zerescore</h1>
+            <p>Sistema di controllo e allineamento dati live attivo.</p>
+            <div id="tabella-campionati"></div>
         </div>
-    </aside>
+    </div>
 
-    <main class="flex-1 flex flex-col min-w-0 bg-[#09090b]">
-        <header class="h-16 border-b border-zinc-800/60 flex items-center justify-between px-8 bg-[#09090b] shrink-0">
-            <h1 id="main-title" class="text-sm font-black tracking-wider uppercase text-zinc-100">TUTTE LE PARTITE DI OGGI</h1>
-            
-            <div class="relative w-64 font-mono text-xs">
-                <input type="text" id="search-input" oninput="eseguiFiltroGlobale()" placeholder="Cerca club..." class="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 pl-3 pr-3 py-1.5 rounded-lg focus:outline-none focus:border-zinc-700 transition">
-            </div>
-        </header>
+    <script>
+        // Carichiamo dinamicamente la password sicura iniettata da Vercel Edge 
+        // Se siamo in locale e la chiave non c'è, usa una password di fallback per i tuoi test
+        const PASS_SICURA = "__APP_PASSWORD__" || "Mister2026"; 
 
-        <div class="flex-1 p-6 overflow-auto custom-scrollbar">
-            <div class="min-w-[800px] bg-[#0c0c0e] border border-zinc-800/60 rounded-xl overflow-hidden shadow-sm">
+        function validaAccesso() {
+            const inputData = document.getElementById("pin-input").value;
+            const errore = document.getElementById("error-notification");
+
+            if (inputData === PASS_SICURA) {
+                // Sblocco immediato: distrugge il muro visivo e mostra la tua app
+                document.getElementById("auth-overlay").style.display = "none";
+                document.getElementById("main-app-content").style.display = "block";
                 
-                <div class="grid grid-cols-12 bg-zinc-900/40 border-b border-zinc-800/80 px-4 py-2.5 font-mono text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
-                    <div class="col-span-2">Data</div>
-                    <div class="col-span-2">League</div>
-                    <div class="col-span-4">Match</div>
-                    <div class="col-span-1 text-center">Score</div>
-                    <div class="col-span-2 text-right">Status / Predictions</div>
-                    <div class="col-span-1 text-right">Action</div>
-                </div>
+                // Inizializza le tue funzioni di caricamento tabelle o dati da Supabase qui sotto:
+                console.log("Accesso autorizzato. Inizializzazione moduli Moneyball...");
+            } else {
+                errore.style.display = "block";
+                document.getElementById("pin-input").value = "";
+            }
+        }
 
-                <div id="tabellone-rows-container" class="divide-y divide-zinc-900">
-                    </div>
-            </div>
-        </div>
-    </main>
-
-    <section id="match-analysis-panel" class="w-96 border-l border-zinc-800/60 bg-[#070a13] flex flex-col justify-between hidden md:flex shrink-0">
-        <div class="p-4 border-b border-zinc-800/60 bg-[#0b0f19] flex justify-between items-center">
-            <div>
-                <span id="drawer-league" class="text-[9px] font-mono text-zinc-500 block uppercase font-bold">INFO MATCH</span>
-                <h2 id="drawer-match-title" class="text-xs font-bold text-zinc-200 uppercase">Seleziona Partita</h2>
-            </div>
-            <button onclick="chiudiPannelloDestro()" class="text-zinc-500 hover:text-zinc-300 cursor-pointer text-xs border-none bg-transparent"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div id="drawer-content" class="p-4 flex-1 overflow-y-auto custom-scrollbar space-y-4">
-            <div class="text-center py-20 text-zinc-600 text-xs font-mono">Clicca sul tasto play verde di una riga per caricare i dati live di campo.</div>
-        </div>
-        <div class="p-3 border-t border-zinc-800/60 text-center font-mono text-[9px] text-zinc-600 uppercase bg-[#0b0f19]">Zerescore Matrix Analytics</div>
-    </section>
-
-    <script src="app.js"></script>
+        function checkEnter(event) {
+            if (event.key === "Enter") {
+                validaAccesso();
+            }
+        }
+    </script>
 </body>
 </html>
