@@ -6,7 +6,7 @@
     <title>Zerescore Terminal - Area Protetta</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- STILE SCHERMATA DI BLOCCO BLINDATA --- */
+        /* --- SCHERMATA DI LOG IN BLINDATA --- */
         #auth-overlay {
             position: fixed;
             top: 0;
@@ -77,7 +77,7 @@
             margin-top: 10px;
             display: none;
         }
-        /* Nasconde l'applicazione principale finché non si è loggati */
+        /* Interfaccia Principale dell'Applicazione */
         #main-app-content {
             display: none;
         }
@@ -104,21 +104,32 @@
     </div>
 
     <script>
-        // Carichiamo dinamicamente la password sicura iniettata da Vercel Edge 
-        // Se siamo in locale e la chiave non c'è, usa una password di fallback per i tuoi test
-        const PASS_SICURA = "__APP_PASSWORD__" || "Mister2026"; 
+        // CONFIGURAZIONE SICUREZZA & CHIAVI ANODIZZATE
+        const PASS_SICURA = "Mister2026"; 
+
+        // Rilevamento automatico Ambiente (PC locale vs Cloud Vercel)
+        const isLocale = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        const supabaseUrl = isLocale ? "INSERISCI_QUI_IL_TUO_URL_SUPABASE_PER_I_TEST_SU_PC" : window.__ENV_SUPABASE_URL__;
+        const supabaseKey = isLocale ? "INSERISCI_QUI_LA_TUA_ANON_KEY_PER_I_TEST_SU_PC" : window.__ENV_SUPABASE_KEY__;
+
+        let supabase = null;
 
         function validaAccesso() {
             const inputData = document.getElementById("pin-input").value;
             const errore = document.getElementById("error-notification");
 
             if (inputData === PASS_SICURA) {
-                // Sblocco immediato: distrugge il muro visivo e mostra la tua app
+                // Distrugge la schermata di blocco e attiva la dashboard
                 document.getElementById("auth-overlay").style.display = "none";
                 document.getElementById("main-app-content").style.display = "block";
                 
-                // Inizializza le tue funzioni di caricamento tabelle o dati da Supabase qui sotto:
-                console.log("Accesso autorizzato. Inizializzazione moduli Moneyball...");
+                // Inizializza Supabase in modo sicuro solo ad accesso eseguito
+                if (supabaseUrl && supabaseKey) {
+                    supabase = supabase.createClient(supabaseUrl, supabaseKey);
+                    console.log("Supabase connesso in modo sicuro. Caricamento dati...");
+                    // Qui puoi richiamare la tua vecchia funzione caricaDati() se presente
+                }
             } else {
                 errore.style.display = "block";
                 document.getElementById("pin-input").value = "";
