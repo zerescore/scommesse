@@ -16,21 +16,15 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
-            
-            /* Colori Algoritmo */
             --label-ottimo: #22c55e;
             --label-rischia: #eab308;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
         body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* --- NAVBAR --- */
-        .navbar {
-            background-color: var(--bg-panel); height: 70px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
-        }
+        .navbar { background-color: var(--bg-panel); height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .nav-brand { font-size: 22px; font-weight: 800; color: var(--accent-green); display: flex; align-items: center; gap: 10px; }
         .nav-menu { display: flex; gap: 15px; }
         .nav-item { color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 12px; border-radius: 6px; transition: 0.2s; }
@@ -40,46 +34,38 @@
         /* --- LAYOUT --- */
         .main-layout { display: flex; flex: 1; overflow: hidden; }
 
-        /* --- SIDEBAR SINISTRA --- */
-        .sidebar { width: 280px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto; transition: transform 0.3s ease; }
+        /* --- SIDEBAR --- */
+        .sidebar { width: 280px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto; }
         .sidebar-section { padding: 20px; border-bottom: 1px solid var(--border-color); }
         .sidebar-title { font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 15px; font-weight: 700; }
         .side-link { display: flex; align-items: center; gap: 12px; padding: 10px; color: var(--text-main); text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; cursor: pointer; }
         .side-link:hover, .side-link.active { background-color: var(--bg-hover); color: var(--accent-green); }
-        
         .date-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
         .date-pill { background: var(--bg-hover); color: var(--text-main); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
         .date-pill.active { background: rgba(16, 185, 129, 0.2); border-color: var(--accent-green); color: var(--accent-green); }
 
-        /* Accordion Campionati */
         .accordion-btn { width: 100%; background: none; border: none; color: var(--text-main); text-align: left; padding: 10px 0; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .accordion-content { display: none; padding-left: 15px; flex-direction: column; gap: 8px; margin-top: 5px; }
         .accordion-content.show { display: flex; }
 
-        /* --- TABELLONE CENTRALE --- */
+        /* --- TABELLONE --- */
         .content-area { flex: 1; padding: 20px; overflow-y: auto; }
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
-        /* --- RIGHE PARTITE DINAMICHE --- */
-        .match-card {
-            background-color: var(--bg-panel); border-radius: 12px; padding: 15px; margin-bottom: 12px;
-            display: flex; align-items: center; justify-content: space-between; border-left: 4px solid transparent; transition: 0.2s;
-        }
+
+        /* --- CARDS PARTITE --- */
+        .match-card { background-color: var(--bg-panel); border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid transparent; transition: 0.2s; }
         .match-card:hover { transform: translateX(4px); border-left-color: var(--accent-green); }
         .match-card.LIVE { border-left-color: var(--accent-live); }
-        
         .match-info-block { display: flex; flex: 1; align-items: center; gap: 20px; }
         .match-time { width: 80px; text-align: center; }
         .status { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
         .status.LIVE { color: var(--accent-live); animation: blink 2s infinite; }
-        .status.OGGI { color: var(--text-muted); }
-        .status.FINITA { color: var(--text-muted); opacity: 0.6; }
+        .status.OGGI, .status.FINITA { color: var(--text-muted); }
         .time { font-size: 16px; font-weight: bold; }
-
         .match-teams { flex: 1; }
         .league-name { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
         .team-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-        .team-name { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .team-name { font-size: 15px; font-weight: 600; }
         .team-score { font-size: 18px; font-weight: 800; }
         .team-score.live-color { color: var(--accent-live); }
 
@@ -88,24 +74,18 @@
         .odd-box { background: var(--bg-hover); padding: 8px 12px; border-radius: 6px; text-align: center; min-width: 50px; }
         .odd-label { font-size: 10px; color: var(--text-muted); }
         .odd-value { font-size: 14px; font-weight: bold; }
-
         .algo-label { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; text-align: center; min-width: 110px; text-transform: uppercase; }
         .label-ottimo { background: rgba(34, 197, 94, 0.15); color: var(--label-ottimo); border: 1px solid rgba(34, 197, 94, 0.3); }
         .label-rischia { background: rgba(234, 179, 8, 0.15); color: var(--label-rischia); border: 1px solid rgba(234, 179, 8, 0.3); }
-
         .btn-play { background: var(--accent-green); color: #000; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        
-        /* --- POPUP DETTAGLIO STATISTICO --- */
+
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center; padding: 20px; }
         .modal-content { background: var(--bg-panel); border-radius: 16px; width: 100%; max-width: 500px; padding: 25px; border: 1px solid var(--border-color); position: relative; }
         .close-modal { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
 
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-
         @media (max-width: 1024px) {
             .nav-menu { display: none; } .mobile-menu-btn { display: block; }
-            .sidebar { position: absolute; z-index: 1000; height: calc(100vh - 70px); transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
             .match-card { flex-direction: column; align-items: flex-start; gap: 15px; }
             .match-info-block { width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
             .algo-block { width: 100%; justify-content: space-between; }
@@ -115,179 +95,97 @@
 <body>
 
     <header class="navbar">
-        <div class="nav-brand">
-            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-            <i class="fa-solid fa-crosshairs"></i> Zerescore
-        </div>
+        <div class="nav-brand">Zerescore</div>
         <nav class="nav-menu">
-            <a href="#" class="nav-item active" onclick="cambiaMacro('1X2')">Super 1X2</a>
-            <a href="#" class="nav-item" onclick="cambiaMacro('GOL')">Super Gol</a>
-            <a href="#" class="nav-item" onclick="cambiaMacro('CREA')">Crea Algoritmo</a>
+            <a href="#" class="nav-item active">Super 1X2</a>
+            <a href="#" class="nav-item">Super Gol</a>
+            <a href="#" class="nav-item">Crea Algoritmo</a>
         </nav>
-        <div class="nav-profile" onclick="alert('Log-out eseguito.')">
-            <span style="font-size: 14px; color: var(--text-muted);">Esci <i class="fa-solid fa-right-from-bracket"></i></span>
-        </div>
     </header>
 
     <div class="main-layout">
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar">
             <div class="sidebar-section">
                 <div class="sidebar-title">Sezioni</div>
-                <a class="side-link active" onclick="filtraCategoria('tutti')"><i class="fa-solid fa-futbol"></i> I tuoi Match</a>
-                <a class="side-link" onclick="filtraCategoria('club')"><i class="fa-solid fa-shield-halved"></i> Club</a>
-                <a class="side-link" onclick="filtraCategoria('top')"><i class="fa-solid fa-star"></i> Top Player</a>
-                <a class="side-link" onclick="filtraCategoria('wall')"><i class="fa-solid fa-images"></i> Wall</a>
+                <a class="side-link active"><i class="fa-solid fa-futbol"></i> I tuoi Match</a>
+                <a class="side-link"><i class="fa-solid fa-shield-halved"></i> Club</a>
+                <a class="side-link"><i class="fa-solid fa-star"></i> Top Player</a>
+                <a class="side-link"><i class="fa-solid fa-images"></i> Wall</a>
             </div>
-
             <div class="sidebar-section">
-                <div class="sidebar-title">Filtri Rapidi Data</div>
+                <div class="sidebar-title">Filtri Rapidi</div>
                 <div class="date-filters">
-                    <button class="date-pill active" onclick="filtraData('OGGI', this)">Oggi</button>
-                    <button class="date-pill" onclick="filtraData('DOMANI', this)">Domani</button>
-                    <button class="date-pill" onclick="filtraData('DOPODOMANI', this)">Dopodomani</button>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title">Campionati Preferiti</div>
-                <button class="accordion-btn" onclick="toggleAccordion('italia')">Italia <i class="fa-solid fa-chevron-down"></i></button>
-                <div class="accordion-content" id="italia">
-                    <span style="cursor:pointer;" onclick="filtraLega('Serie A')">• Serie A</span>
-                    <span style="cursor:pointer;" onclick="filtraLega('Serie D')">• Serie D</span>
-                </div>
-                <button class="accordion-btn" onclick="toggleAccordion('estero')">Estero <i class="fa-solid fa-chevron-down"></i></button>
-                <div class="accordion-content" id="estero">
-                    <span style="cursor:pointer;" onclick="filtraLega('Premier League')">• Premier League</span>
-                    <span style="cursor:pointer;" onclick="filtraLega('Ligue 2')">• Ligue 2</span>
+                    <button class="date-pill active">Oggi</button>
+                    <button class="date-pill">Domani</button>
                 </div>
             </div>
         </aside>
 
         <main class="content-area">
             <div class="content-header">
-                <h1 id="titolo-tabellone">Palinsesto Odierno</h1>
+                <h1>Palinsesto Match Live</h1>
             </div>
-
             <div id="tabellone-partite">
                 </div>
         </main>
     </div>
 
-    <div class="modal" id="stat-modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="chiudiModal()"><i class="fa-solid fa-xmark"></i></button>
-            <h2 id="modal-title" style="margin-bottom: 15px; color: var(--accent-green);">Dettaglio Match</h2>
-            <div id="modal-body" style="font-size: 14px; line-height: 1.6; color: var(--text-main);">
-                </div>
-        </div>
-    </div>
-
     <script>
         let db = null;
-        let tutteLePartite = [];
-
-        // Connessione Diretta Sicura a Supabase
+        
         document.addEventListener('DOMContentLoaded', () => {
-            toggleSidebar(); // Chiude su mobile all'avvio
-            
+            // Connessione diretta con credenziali fisse per bypassare i problemi di Vercel
             const INI_URL = "https://qfshfjphjshrpwdnsekn.supabase.co";
             const INI_KEY = "sb_publishable_04abaz97o0BG-VD1-kyHVg_d4zgdDqD"; 
             
             db = supabase.createClient(INI_URL, INI_KEY);
-            console.log("Database Zerescore connesso correttamente alla tabella partita_live.");
             connettiEScarica();
-            
-            // Aggiorna i risultati in tempo reale ogni 30 secondi
-            setInterval(connettiEScarica, 30000);
+            setInterval(connettiEScarica, 15000); // Aggiorna ogni 15 secondi
         });
 
         async function connettiEScarica() {
             try {
-                // Interroga la tabella al singolare 'partita_live'
                 const { data, error } = await db.from('partita_live').select('*');
                 if (error) throw error;
-                tutteLePartite = data || [];
-                renderizzaPartite(tutteLePartite);
+                
+                const container = document.getElementById('tabellone-partite');
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:30px;">In attesa che lo script Python carichi i dati su Supabase...</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.forEach(m => {
+                    const isLive = m.status === 'LIVE';
+                    container.innerHTML += `
+                        <div class="match-card ${m.status}">
+                            <div class="match-info-block">
+                                <div class="match-time">
+                                    <div class="status ${m.status}">${isLive ? m.minute : m.status}</div>
+                                    <div class="time">${m.minute || '--:--'}</div>
+                                </div>
+                                <div class="match-teams">
+                                    <div class="league-name">${m.campionato}</div>
+                                    <div class="team-row"><div class="team-name">${m.home_team}</div><div class="team-score">${m.home_score}</div></div>
+                                    <div class="team-row"><div class="team-name">${m.away_team}</div><div class="team-score">${m.away_score}</div></div>
+                                </div>
+                            </div>
+                            <div class="algo-block">
+                                <div class="odds-container">
+                                    <div class="odd-box"><div class="odd-value">${m.quota_1 || '1.80'}</div></div>
+                                    <div class="odd-box"><div class="odd-value">${m.quota_x || '3.40'}</div></div>
+                                    <div class="odd-box"><div class="odd-value">${m.quota_2 || '4.00'}</div></div>
+                                </div>
+                                <div class="algo-label label-ottimo">${m.pronostico || 'Analisi'}</div>
+                                <button class="btn-play"><i class="fa-solid fa-play"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
             } catch (err) {
-                console.error("Errore di allineamento live:", err);
+                console.error(err);
             }
         }
-
-        function renderizzaPartite(lista) {
-            const container = document.getElementById('tabellone-partite');
-            if (lista.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:30px;">Nessun match attivo nel palinsesto in questo momento.</p>';
-                return;
-            }
-
-            container.innerHTML = '';
-            lista.forEach(m => {
-                const isLive = m.status === 'LIVE';
-                const scoreHome = m.home_score !== null ? m.home_score : '0';
-                const scoreAway = m.away_score !== null ? m.away_score : '0';
-                const classeAlgo = (m.pronostico || '').includes('Ottimo') || (m.pronostico || '').includes('Probabile') ? 'label-ottimo' : 'label-rischia';
-
-                container.innerHTML += `
-                    <div class="match-card ${m.status}">
-                        <div class="match-info-block">
-                            <div class="match-time">
-                                <div class="status ${m.status}">${isLive ? m.minute : m.status}</div>
-                                <div class="time" style="${isLive ? 'color:var(--accent-live);' : ''}">${isLive ? 'LIVE' : m.minute || '--:--'}</div>
-                            </div>
-                            <div class="match-teams">
-                                <div class="league-name">${m.campionato}</div>
-                                <div class="team-row">
-                                    <div class="team-name">${m.home_team}</div>
-                                    <div class="team-score ${isLive ? 'live-color' : ''}">${scoreHome}</div>
-                                </div>
-                                <div class="team-row">
-                                    <div class="team-name">${m.away_team}</div>
-                                    <div class="team-score ${isLive ? 'live-color' : ''}">${scoreAway}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="algo-block">
-                            <div class="odds-container">
-                                <div class="odd-box"><div class="odd-label">1</div><div class="odd-value">${m.quota_1 || 'N/A'}</div></div>
-                                <div class="odd-box"><div class="odd-label">X</div><div class="odd-value">${m.quota_x || 'N/A'}</div></div>
-                                <div class="odd-box"><div class="odd-label">2</div><div class="odd-value">${m.quota_2 || 'N/A'}</div></div>
-                            </div>
-                            <div class="algo-label ${classeAlgo}">${m.pronostico || 'In corso'}</div>
-                            <button class="btn-play" onclick="apriAnalisi('${m.home_team}', '${m.away_team}', '${m.pronostico || 'In corso'}')"><i class="fa-solid fa-play"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function apriAnalisi(home, away, prono) {
-            document.getElementById('modal-title').innerText = `${home} VS ${away}`;
-            document.getElementById('modal-body').innerHTML = `
-                <p><strong>Analisi Algoritmo Zerescore:</strong></p>
-                <p style="margin-top:10px;">Il sistema ha elaborato una tendenza per questo match con esito consigliato: <span style="color:var(--accent-green); font-weight:bold;">${prono}</span>.</p>
-                <p style="margin-top:10px; color:var(--text-muted);">Storico delle quote reali allineato correttamente tramite API del calcio.</p>
-            `;
-            document.getElementById('stat-modal').style.display = 'flex';
-        }
-
-        function chiudiModal() { document.getElementById('stat-modal').style.display = 'none'; }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-        function toggleAccordion(id) { document.getElementById(id).classList.toggle('show'); }
-
-        function filtraData(stato, btn) {
-            document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-            const filtrate = tutteLePartite.filter(m => m.status === stato || (stato === 'OGGI' && m.status === 'LIVE'));
-            renderizzaPartite(filtrate);
-        }
-
-        function filtraLega(lega) {
-            const filtrate = tutteLePartite.filter(m => m.campionato.toLowerCase().includes(lega.toLowerCase()));
-            renderizzaPartite(filtrate);
-        }
-
-        function cambiaMacro(tipo) { alert(`Algoritmo impostato su macro-categoria: ${tipo}`); }
-        function filtraCategoria(tipo) { document.getElementById('titolo-tabellone').innerText = `Sezione: ${tipo.toUpperCase()}`; }
     </script>
 </body>
 </html>

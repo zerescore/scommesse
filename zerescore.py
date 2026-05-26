@@ -3,15 +3,18 @@ import time
 import requests
 
 def carica_chiavi_locali():
-    """Legge il file .env in modo nativo per estrarre le credenziali"""
+    """Legge il file .env in modo super flessibile eliminando spazi o caratteri spuri"""
     chiavi = {}
     if os.path.exists(".env"):
-        with open(".env", "r") as f:
+        with open(".env", "r", encoding="utf-8") as f:
             for riga in f:
-                if not riga.strip() or riga.strip().startswith("#"):
+                riga_pulita = riga.strip()
+                # Salta righe vuote o commenti
+                if not riga_pulita or riga_pulita.startswith("#"):
                     continue
-                if "=" in riga:
-                    chiave, valore = riga.strip().split("=", 1)
+                if "=" in riga_pulita:
+                    chiave, valore = riga_pulita.split("=", 1)
+                    # Puliamo spazi bianchi extra ai lati di chiave e valore
                     chiavi[chiave.strip()] = valore.strip()
     return chiavi
 
@@ -21,8 +24,15 @@ SUPABASE_URL = config.get("https://qfshfjphjshrpwdnsekn.supabase.co")
 SUPABASE_KEY = config.get("sb_publishable_04abaz97o0BG-VDl-kyHVg_d4zgdDqD")
 API_KEY_FOOTBALL = config.get("dbbb7986bcaeb46218aac93cc169e420")
 
+# Stampiamo un feedback chiaro a terminale per capire cosa viene letto
+print("\n--- [DIAGNOSTICA .ENV] ---")
+print(f"🔹 SUPABASE_URL trovato: {'SÌ ✅' if SUPABASE_URL else 'NO ❌'}")
+print(f"🔹 SUPABASE_KEY trovato: {'SÌ ✅' if SUPABASE_KEY else 'NO ❌'}")
+print(f"🔹 API_KEY_FOOTBALL trovato: {'SÌ ✅' if API_KEY_FOOTBALL else 'NO ❌'}")
+print("--------------------------\n")
+
 if not all([SUPABASE_URL, SUPABASE_KEY, API_KEY_FOOTBALL]):
-    print("\n⚠️ ERRORE: Controlla che il file .env contenga SUPABASE_URL, SUPABASE_KEY e API_KEY_FOOTBALL!")
+    print("⚠️ ERRORE: Il file .env è formattato male o mancano delle chiavi. Controllalo!")
     exit(1)
 
 # Endpoint corretto al singolare 'partita_live'
@@ -41,7 +51,6 @@ FOOTBALL_HEADERS = {
 }
 
 def elabora_pronostico(q1, qx, q2):
-    """Algoritmo quote di Zerescore"""
     try:
         v1 = float(q1)
         if v1 <= 1.50: return "Ottimo 1"
@@ -52,7 +61,6 @@ def elabora_pronostico(q1, qx, q2):
         return "Analisi Live"
 
 def scarica_match_reali_oggi():
-    """Scarica i match globali in diretta e programmati per oggi"""
     data_oggi = time.strftime("%Y-%m-%d")
     params = {"date": data_oggi}
     
@@ -73,7 +81,6 @@ def scarica_match_reali_oggi():
             status_short = fixture.get("status", {}).get("short")
             elapsed = fixture.get("status", {}).get("elapsed")
             
-            # Formattazione stato del tempo reale
             if status_short in ["1H", "2H", "HT"]:
                 stato_match = "LIVE"
                 minuto_gioco = f"{elapsed}'" if elapsed else "LIVE"
@@ -84,7 +91,6 @@ def scarica_match_reali_oggi():
                 stato_match = "OGGI"
                 minuto_gioco = fixture.get("date", "")[11:16] if fixture.get("date") else "Da Iniz."
 
-            # Calcolo quote base e pronostico
             q1, qx, q2 = 2.10, 3.20, 3.40
             pronostico_calcolato = elabora_pronostico(q1, qx, q2)
             
@@ -103,7 +109,6 @@ def scarica_match_reali_oggi():
             }
             partite_formattate.append(partita)
             
-            # Limitazione per test prestazionali
             if len(partite_formattate) >= 35:
                 break
                 
@@ -121,10 +126,7 @@ def sincronizza_database():
         return
 
     try:
-        # Pulisce la tabella al singolare 'partita_live'
         requests.delete(f"{REST_URL}?status=not.eq.BLOCCATO", headers=SUPABASE_HEADERS)
-        
-        # Carica il blocco dati reali
         response = requests.post(REST_URL, headers=SUPABASE_HEADERS, json=match_veri)
         if response.status_code in [200, 201, 204]:
             print(f"✅ Sincronizzazione riuscita! {len(match_veri)} match inseriti in 'partita_live'.")
