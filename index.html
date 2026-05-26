@@ -230,10 +230,9 @@
     </div>
 
     <script>
-        // Logica blindata per evitare conflitti con vecchi script
+        // Logica blindata
         const SYS_PIN = "Mister2026";
         
-        // Inizializzazione pulita e indipendente all'avvio
         document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('zs_auth') === 'true') {
                 sbloccaUI();
@@ -244,10 +243,13 @@
             document.getElementById("auth-overlay").style.display = "none";
             document.getElementById("app-content").style.display = "block";
             
-            // Inizializzazione Supabase sicura e invisibile
+            // Inizializzazione Supabase
             if (window.__ENV_SUPABASE_URL__ && window.__ENV_SUPABASE_KEY__) {
                 window.zsDB = supabase.createClient(window.__ENV_SUPABASE_URL__, window.__ENV_SUPABASE_KEY__);
                 console.log("Database connesso.");
+                
+                // CARICA I DATI APPENA SBLOCCATO!
+                caricaDatiDatabase();
             }
         }
 
@@ -274,6 +276,47 @@
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('table-title').innerText = title;
+        }
+
+        // --- LA FUNZIONE MANCANTE PER GLI STORICI ---
+        async function caricaDatiDatabase() {
+            const corpoTabella = document.querySelector("tbody");
+            corpoTabella.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin" style="color: var(--accent); font-size: 24px;"></i><br><br><span style="color: var(--text-secondary);">Estrazione dati storici in corso...</span></td></tr>';
+
+            if (!window.zsDB) {
+                corpoTabella.innerHTML = '<tr><td colspan="3" style="text-align:center; color: var(--danger); padding: 20px;">Database non connesso.</td></tr>';
+                return;
+            }
+
+            try {
+                // ⚠️ MODIFICA 'nome_tua_tabella' CON QUELLO CHE HAI SU SUPABASE
+                const { data, error } = await window.zsDB.from('nome_tua_tabella').select('*').limit(50);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    corpoTabella.innerHTML = ''; 
+                    data.forEach(riga => {
+                        // ⚠️ MODIFICA I NOMI DELLE COLONNE
+                        const nomeSquadra = riga.nome_squadra || 'Squadra Sconosciuta';
+                        const efficienza = riga.valore_efficienza || 'N/A';
+                        const stato = 'Storico Attivo'; 
+
+                        corpoTabella.innerHTML += `
+                            <tr>
+                                <td><strong>${nomeSquadra}</strong></td>
+                                <td><span class="badge">${stato}</span></td>
+                                <td>${efficienza}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    corpoTabella.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: var(--text-secondary);">Nessun dato trovato su Supabase.</td></tr>';
+                }
+            } catch (err) {
+                console.error("Errore Supabase:", err);
+                corpoTabella.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--danger); padding: 20px;">Errore: ${err.message}</td></tr>`;
+            }
         }
     </script>
 </body>
