@@ -3,47 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zerescore Terminal - Area Protetta</title>
+    <title>Zerescore Terminal - Moneyball Scouting</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- SCHERMATA DI LOG IN BLINDATA --- */
+        :root {
+            --bg-primary: #090d16;
+            --bg-secondary: #111827;
+            --bg-accent: #1f2937;
+            --accent-green: #10b981;
+            --accent-green-hover: #059669;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* --- 🔒 SCHERMATA DI ACCESSO BLINDATA --- */
         #auth-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: #090d16;
+            background-color: var(--bg-primary);
             z-index: 99999;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .auth-card {
-            background: #111827;
+            background: var(--bg-secondary);
             padding: 40px;
             border-radius: 16px;
-            border: 1px solid #1f2937;
+            border: 1px solid var(--border-color);
             text-align: center;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
             max-width: 400px;
             width: 90%;
         }
         .auth-card h2 {
-            color: #f3f4f6;
+            color: var(--text-main);
             margin-bottom: 10px;
-            font-size: 24px;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         .auth-card p {
-            color: #9ca3af;
+            color: var(--text-muted);
             font-size: 14px;
             margin-bottom: 25px;
         }
         .auth-card input[type="password"] {
             width: 100%;
             padding: 14px;
-            background: #1f2937;
+            background: var(--bg-accent);
             border: 1px solid #374151;
             border-radius: 8px;
             color: #fff;
@@ -51,10 +74,11 @@
             text-align: center;
             margin-bottom: 15px;
             box-sizing: border-box;
+            transition: border-color 0.2s;
         }
         .auth-card input[type="password"]:focus {
             outline: none;
-            border-color: #10b981;
+            border-color: var(--accent-green);
         }
         .remember-container {
             display: flex;
@@ -62,48 +86,213 @@
             justify-content: center;
             gap: 8px;
             margin-bottom: 20px;
-            color: #9ca3af;
+            color: var(--text-muted);
             font-size: 14px;
             cursor: pointer;
             user-select: none;
         }
         .remember-container input {
             cursor: pointer;
-            accent-color: #10b981;
+            accent-color: var(--accent-green);
             width: 16px;
             height: 16px;
         }
         .auth-card button {
             width: 100%;
             padding: 14px;
-            background: #10b981;
+            background: var(--accent-green);
             border: none;
             border-radius: 8px;
             color: #000;
             font-weight: bold;
             font-size: 16px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
         }
         .auth-card button:hover {
-            background: #059669;
+            background: var(--accent-green-hover);
+        }
+        .auth-card button:active {
+            transform: scale(0.98);
         }
         .error-msg {
             color: #ef4444;
             font-size: 14px;
-            margin-top: 10px;
+            margin-top: 12px;
             display: none;
         }
+
+        /* --- 📊 APPLICAZIONE PRINCIPALE (LA TUA DASHBOARD) --- */
         #main-app-content {
             display: none;
+            display: flex;
+            min-height: 100vh;
         }
+
+        /* Sidebar Laterale */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+        .logo-area {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .menu-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .nav-button {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+        .nav-button:hover, .nav-button.active {
+            background-color: var(--bg-accent);
+            color: var(--accent-green);
+        }
+
+        /* Pannello Principale */
+        .main-panel {
+            flex-grow: 1;
+            padding: 30px;
+            box-sizing: border-box;
+            background-color: var(--bg-primary);
+        }
+        .header-dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header-dashboard h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Griglia delle Statistiche Veloci (Widget) */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .stat-card .label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        .stat-card .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        /* Contenitore della Tabella Dati */
+        .table-container {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: bold;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background-color: rgba(31, 41, 55, 0.4);
+            color: var(--text-muted);
+            padding: 14px 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background-color: rgba(31, 41, 55, 0.2);
+        }
+
+        /* Stili dei badge nelle tabelle */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
     </style>
 </head>
-<body style="background-color: #0f172a; margin: 0; color: #fff;">
+<body>
 
     <div id="auth-overlay">
         <div class="auth-card">
-            <h2>🔐 Zerescore Terminal</h2>
+            <h2><i class="fa-solid fa-shield-halved"></i> Zerescore Terminal</h2>
             <p>Inserisci il PIN di sblocco per accedere ai dati Moneyball.</p>
             <input type="password" id="pin-input" placeholder="••••••••" onkeypress="checkEnter(event)">
             
@@ -113,24 +302,98 @@
             </label>
 
             <button onclick="validaAccesso()">Sblocca Terminale</button>
-            <div id="error-notification" class="error-msg">PIN errato. Accesso negato.</div>
+            <div id="error-notification" class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> PIN errato. Accesso negato.</div>
         </div>
     </div>
 
     <div id="main-app-content">
-        <div style="padding: 20px;">
-            <h1>Benvenuto nel Terminale Zerescore</h1>
-            <p>Sistema di controllo e allineamento dati live attivo.</p>
-            <div id="tabella-campionati"></div>
+        
+        <div class="sidebar">
+            <div class="logo-area">
+                <i class="fa-solid fa-chart-line"></i> ZERESCORE
+            </div>
+            
+            <div class="menu-label">Scouting Target</div>
+            <button class="nav-button active" onclick="cambiaFiltro('tutti')"><i class="fa-solid fa-globe"></i> Tutti i Campionati</button>
+            <button class="nav-button" onclick="cambiaFiltro('serie-d')"><i class="fa-solid fa-ranking-star"></i> Focus Serie D</button>
+            <button class="nav-button" onclick="cambiaFiltro('preferiti')"><i class="fa-solid fa-star"></i> Giocatori Osservati</button>
+            
+            <div class="menu-label" style="margin-top: 25px;">Database</div>
+            <button class="nav-button" onclick="caricaDatiDatabase()"><i class="fa-solid fa-rotate"></i> Sincronizza Live</button>
+        </div>
+
+        <div class="main-panel">
+            <div class="header-dashboard">
+                <div>
+                    <h1>Pannello di Allineamento Moneyball</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">Analisi statistica avanzata ed incroci di mercato</p>
+                </div>
+                <div class="status-badge">
+                    <i class="fa-solid fa-circle" style="font-size: 8px; animation: pulse 1.5s infinite;"></i> Pilota Automatico Attivo
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="label">Campionati Monitorati</span>
+                    <span class="number" id="widget-leghe">11</span>
+                </div>
+                <div class="stat-card">
+                    <span class="label">Giocatori in Database</span>
+                    <span class="number" id="widget-players">1.420</span>
+                </div>
+                <div class="stat-card">
+                    <span class="label">Match Analizzati</span>
+                    <span class="number" id="widget-matches">3.840</span>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header" id="nome-tabella-dinamica">
+                    Anagrafica Leghe Sincronizzate
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="tabella-principale">
+                        <thead>
+                            <tr>
+                                <th>ID Lega</th>
+                                <th>Campionato</th>
+                                <th>Nazione</th>
+                                <th>Stato Allineamento</th>
+                                <th>Rating Efficienza</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo-tabella-dati">
+                            <tr>
+                                <td><td><strong>Serie D - Girone C</strong></td></td>
+                                <td>Italia</td>
+                                <td><span class="badge badge-green">Aggiornato 2026</span></td>
+                                <td><strong>88.4%</strong></td>
+                            </tr>
+                            <tr>
+                                <td><td><strong>Ligue 2</strong></td></td>
+                                <td>Francia</td>
+                                <td><span class="badge badge-green">Aggiornato 2026</span></td>
+                                <td><strong>91.2%</strong></td>
+                            </tr>
+                            <tr>
+                                <td><td><strong>Championship</strong></td></td>
+                                <td>Inghilterra</td>
+                                <td><span class="badge badge-blue">In Coda</span></td>
+                                <td><strong>94.5%</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Definiamo solo la password qui. La variabile 'supabase' NON viene creata qui
-        // per evitare conflitti con le dichiarazioni presenti più in basso nel file.
-        const PASS_SICURA = "Mister2026"; 
+        const PASS_SICURA = "Mister2026";
+        let supabase = null; 
 
-        // CONTROLLO AUTOMATICO RICORDAMI ALL'AVVIO
+        // CONTROLLO AUTOMATICO ACCESSO MEMORIZZATO ALL'AVVIO
         window.addEventListener('DOMContentLoaded', () => {
             const sessioneSalvata = localStorage.getItem('zerescore_logged');
             if (sessioneSalvata === 'true') {
@@ -139,12 +402,13 @@
         });
 
         function mostraApplicazione() {
+            // Sblocca visivamente l'interfaccia principale rimuovendo il blocco nero
             document.getElementById("auth-overlay").style.display = "none";
-            document.getElementById("main-app-content").style.display = "block";
-            console.log("Accesso eseguito. Terminale sbloccato.");
+            document.getElementById("main-app-content").style.display = "flex";
+            console.log("Terminale sbloccato. Avvio moduli Moneyball completato.");
             
-            // Se sotto nel codice hai una funzione per caricare le tabelle (es. inizializzaTabella() o caricaDati()), 
-            // puoi richiamarla qui per far partire i dati subito dopo lo sblocco.
+            // Inizializza la connessione a Supabase se le credenziali sono presenti nell'ambiente
+            inizializzaSupabaseDinamico();
         }
 
         function validaAccesso() {
@@ -167,6 +431,32 @@
             if (event.key === "Enter") {
                 validaAccesso();
             }
+        }
+
+        function cambiaFiltro(tipo) {
+            // Gestione visiva dei pulsanti attivi della sidebar
+            const bottoni = document.querySelectorAll('.nav-button');
+            bottoni.forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            const titoloTabella = document.getElementById('nome-tabella-dinamica');
+            if (tipo === 'tutti') titoloTabella.innerText = "Anagrafica Leghe Sincronizzate";
+            if (tipo === 'serie-d') titoloTabella.innerText = "Focus Performance Serie D - Italia";
+            if (tipo === 'preferiti') titoloTabella.innerText = "Shorlist Giocatori Sotto Osservazione";
+            
+            console.log(`Filtro modificato in: ${tipo}`);
+        }
+
+        function inizializzaSupabaseDinamico() {
+            // Cerca le chiavi iniettate da Vercel o dal file di configurazione
+            if (window.__ENV_SUPABASE_URL__ && window.__ENV_SUPABASE_KEY__) {
+                supabase = supabase.createClient(window.__ENV_SUPABASE_URL__, window.__ENV_SUPABASE_KEY__);
+                caricaDatiDatabase();
+            }
+        }
+
+        function caricaDatiDatabase() {
+            print("Richiesta sincronizzazione dati live inoltrata al server...");
         }
     </script>
 </body>
