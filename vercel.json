@@ -1,33 +1,10 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "api/*.py",
-        "use": "@vercel/python"
-      },
-      {
-        "src": "index.html",
-        "use": "@vercel/static"
-      },
-      {
-        "src": "app.js",
-        "use": "@vercel/static"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "api/$1.py"
-      },
-      {
-        "src": "/(.*)",
-        "dest": "/$1"
-      }
-    ],
-    "crons": [
-      {
-        "path": "/api/cron_aggiorna",
-        "schedule": "0 3 * * *"
-      }
-    ]
-  }
+  "version": 2,
+  "cleanUrls": true,
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
