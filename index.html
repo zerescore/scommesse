@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zerescore | Professional Data Engine</title>
+    <title>Zerescore | Quantitative Football Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-main: #0a0f1d;
-            --bg-card: #141b2d;
-            --bg-accent: #1f2a45;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --neon-green: #10b981;
-            --neon-blue: #3b82f6;
-            --danger: #ef4444;
+            --bg-main: #090d16;
+            --bg-card: #111827;
+            --bg-accent: #1f2937;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --neon-blue: #2563eb;
+            --neon-green: #059669;
+            --border-color: #374151;
         }
 
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 20px;
         }
@@ -31,16 +31,17 @@
             justify-content: space-between;
             align-items: center;
             padding-bottom: 20px;
-            border-bottom: 1px solid var(--bg-accent);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .api-badge {
-            background: rgba(59, 130, 246, 0.15);
+            background: rgba(37, 92, 235, 0.1);
             border: 1px solid var(--neon-blue);
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 4px;
+            font-family: monospace;
             font-weight: bold;
-            color: var(--neon-blue);
+            color: #60a5fa;
         }
 
         .tabs {
@@ -51,16 +52,17 @@
 
         .tab-btn {
             background: var(--bg-card);
-            border: 1px solid var(--bg-accent);
+            border: 1px solid var(--border-color);
             color: var(--text-muted);
             padding: 10px 24px;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .tab-btn.active, .tab-btn:hover {
+        .tab-btn.active {
             background: var(--neon-blue);
             color: white;
             border-color: var(--neon-blue);
@@ -68,57 +70,72 @@
 
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 450px;
             gap: 20px;
         }
 
         .match-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .match-card {
             background: var(--bg-card);
-            border: 1px solid var(--bg-accent);
-            padding: 15px;
-            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 4px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: transform 0.2s, border-color 0.2s;
         }
 
         .match-card:hover {
-            transform: translateX(4px);
             border-color: var(--neon-blue);
         }
 
         .details-panel {
             background: var(--bg-card);
-            border: 1px solid var(--bg-accent);
+            border: 1px solid var(--border-color);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 4px;
             position: sticky;
             top: 20px;
             height: fit-content;
         }
 
-        .stat-box {
-            background: var(--bg-main);
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-            border-left: 4px solid var(--neon-green);
+        .data-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: 4px;
+            margin-bottom: 15px;
         }
 
-        .prediction-box {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px dashed var(--neon-green);
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
+        .prediction-matrix {
+            background: rgba(5, 150, 105, 0.05);
+            border: 1px solid var(--neon-green);
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        .prob-bar-container {
+            display: flex;
+            background: #1f2937;
+            height: 20px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .prob-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
         }
     </style>
 </head>
@@ -126,140 +143,145 @@
 
     <header>
         <div>
-            <h1 style="margin:0; color:var(--text-main);">ZERESCORE <span style="color:var(--neon-green); font-size:14px;">Data Engine v2.0</span></h1>
-            <p style="margin:5px 0 0 0; color:var(--text-muted);">Analisi statistica e pronostici reali</p>
+            <h1 style="margin:0; font-size:24px; letter-spacing: -0.5px;">ZERESCORE <span style="color:var(--text-muted); font-size:14px; font-weight:normal;">| Quantitative Model</span></h1>
+            <p style="margin:4px 0 0 0; color:var(--text-muted); font-size:13px;">Analisi probabilistica basata su volumi d'archivio e performance reali</p>
         </div>
-        <div class="api-badge" id="api-counter">
-            <i class="fas fa-database"></i> API Chiamate: <span id="api-used">0</span> / 100
+        <div class="api-badge">
+            <i class="fas fa-key"></i> API CREDITS REMAINING: <span id="api-remaining">--</span>
         </div>
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('OGGI')">OGGI</button>
-        <button class="tab-btn" onclick="switchTab('DOMANI')">DOMANI</button>
+        <button class="tab-btn active" onclick="filtraPalinsesto('OGGI')">Oggi</button>
+        <button class="tab-btn" onclick="filtraPalinsesto('DOMANI')">Domani</button>
     </div>
 
     <div class="main-layout">
-        <div class="match-list" id="match-container">
-            </div>
+        <div class="match-list" id="match-container"></div>
 
         <div class="details-panel" id="details-container">
-            <h3 style="margin-top:0; color:var(--text-muted);">Seleziona una partita per visualizzare l'analisi numerica avanzata.</h3>
+            <p style="color:var(--text-muted); text-align:center; margin:0; padding:40px 0;">Selezionare un evento per caricare la matrice statistica del match.</p>
         </div>
     </div>
 
     <script>
-        // Inizializzazione Client Supabase
         const db = supabase.createClient("https://qfshfjphjshrpwdnsekn.supabase.co", "sb_publishable_04abaz97o0BG-VD1-kyHVg_d4zgdDqD");
         
-        let palinsestoCompleto = [];
-        let tabCorrente = 'OGGI';
+        let datasetMatch = [];
+        let filtroCorrente = 'OGGI';
 
-        function switchTab(giorno) {
-            tabCorrente = giorno;
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText === giorno);
-            });
-            renderPartite();
-        }
-
-        async function scaricaDati() {
+        async function fetchEngineData() {
             try {
-                // Recupero dei dati dalla tabella singolare partita_live
                 const { data, error } = await db.from('partita_live').select('*');
                 if (error) throw error;
-
-                palinsestoCompleto = data || [];
+                datasetMatch = data || [];
                 
-                // Aggiornamento fittizio/reale dei crediti basato sul numero di record o cicli dello script
-                document.getElementById('api-used').innerText = Math.min(24 + palinsestoCompleto.length, 100);
-
-                renderPartite();
+                if (datasetMatch.length > 0 && datasetMatch[0].api_headers_remaining !== null) {
+                    document.getElementById('api-remaining').innerText = datasetMatch[0].api_headers_remaining;
+                }
+                
+                renderPalinsesto();
             } catch (err) {
-                console.error("Errore caricamento dati:", err);
+                console.error("Errore fetch database:", err);
             }
         }
 
-        function renderPartite() {
+        function filtraPalinsesto(target) {
+            filtroCorrente = target;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase() === target.toLowerCase());
+            });
+            renderPalinsesto();
+        }
+
+        function renderPalinsesto() {
             const container = document.getElementById('match-container');
-            // Filtriamo le partite in base allo stato inserito dallo script Python
-            const filtrate = palinsestoCompleto.filter(m => {
-                if (tabCorrente === 'OGGI') return m.status === 'LIVE' || m.status === 'OGGI' || m.status === 'FINITA';
-                return m.status === 'DOMANI'; // Se implementato nello scaricatore delle API
+            const oggiString = new Date().toISOString().split('T')[0];
+            
+            const filtrati = datasetMatch.filter(m => {
+                if (!m.data_match) return filtroCorrente === 'OGGI';
+                const matchDate = m.data_match;
+                if (filtroCorrente === 'OGGI') return matchDate === oggiString;
+                return matchDate > oggiString;
             });
 
-            if (filtrate.length === 0) {
-                container.innerHTML = `<p style="color:var(--text-muted); padding:20px;">Nessun match programmato per la sezione ${tabCorrente}.</p>`;
+            if (filtrati.length === 0) {
+                container.innerHTML = `<div style="padding:20px; color:var(--text-muted); border: 1px dashed var(--border-color);">Nessun match presente in archivio per il filtro selezionato.</div>`;
                 return;
             }
 
-            container.innerHTML = filtrate.map(m => `
-                <div class="match-card" onclick="mostraDettagli(${m.id})">
+            container.innerHTML = filtrati.map(m => `
+                <div class="match-card" onclick="mostraAnalisiDettagliata(${m.id})">
                     <div>
-                        <span style="font-size:12px; color:var(--neon-blue); font-weight:bold; display:block;">${m.campionato.toUpperCase()}</span>
-                        <strong style="font-size:16px;">${m.home_team} - ${m.away_team}</strong>
+                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:bold; display:block; letter-spacing:0.5px;">${m.campionato}</span>
+                        <strong style="font-size:15px; color:#ffffff;">${m.home_team} - ${m.away_team}</strong>
                     </div>
                     <div style="text-align:right;">
-                        <span class="api-badge" style="background:rgba(16,185,129,0.1); border-color:var(--neon-green); color:var(--neon-green);">${m.minute || m.status}</span>
+                        <span style="font-size:12px; font-family:monospace; background:rgba(255,255,255,0.05); padding:4px 8px; border:1px solid var(--border-color);">${m.minute || m.status}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        function mostraDettagli(matchId) {
-            const match = palinsestoCompleto.find(m => m.id === matchId);
+        function mostraAnalisiDettagliata(id) {
+            const match = datasetMatch.find(m => m.id === id);
             if (!match) return;
 
             const panel = document.getElementById('details-container');
-
-            // Calcoli Statistici Simulati basati sul database (Moneyball Engine)
-            const totaliCampionato = Math.floor(Math.random() * 80) + 120; 
-            const scontriDiretti = Math.floor(Math.random() * 6) + 2;
-            const vittorieCasa = Math.floor(Math.random() * scontriDiretti);
-            const pareggi = scontriDiretti - vittorieCasa - Math.floor(Math.random() * (scontriDiretti - vittorieCasa));
-            const vittorieFuori = scontriDiretti - vittorieCasa - pareggi;
+            
+            const p1 = match.perc_1 || 0.00;
+            const px = match.perc_x || 0.00;
+            const p2 = match.perc_2 || 0.00;
+            
+            const esitiLista = match.esiti_probabili && match.esiti_probabili.length > 0 
+                ? match.esiti_probabili.map(e => `<li>${e}</li>`).join('') 
+                : '<li>Analisi in corso...</li>';
 
             panel.innerHTML = `
-                <h2 style="margin-top:0; color:var(--neon-blue);">${match.home_team} vs ${match.away_team}</h2>
-                <p style="color:var(--text-muted); font-size:14px;"><i class="fas fa-trophy"></i> ${match.campionato}</p>
-                <hr style="border-color:var(--bg-accent);">
-                
-                <h4><i class="fas fa-history"></i> Storico Scontri Diretti</h4>
-                <div class="stat-box">
-                    Scontri totali registrati: <strong>${scontriDiretti} volte</strong><br>
-                    Vittorie ${match.home_team}: <strong>${vittorieCasa}</strong> | 
-                    Pareggi: <strong>${pareggi}</strong> | 
-                    Vittorie ${match.away_team}: <strong>${vittorieFuori}</strong>
+                <h2 style="margin:0 0 4px 0; font-size:20px; color:#ffffff;">${match.home_team} vs ${match.away_team}</h2>
+                <span style="font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">${match.campionato}</span>
+                <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
+
+                <div class="data-section">
+                    <h3 style="margin:0 0 8px 0; font-size:13px; color:var(--text-muted); text-transform:uppercase;"><i class="fas fa-history"></i> Storico Head-To-Head (H2H)</h3>
+                    Confronti Diretti Analizzati: <strong>${match.h2h_totali || 0}</strong><br>
+                    Vittorie ${match.home_team}: <strong>${match.h2h_vittorie_casa || 0}</strong> | 
+                    Pareggi: <strong>${match.h2h_pareggi || 0}</strong> | 
+                    Vittorie ${match.away_team}: <strong>${match.h2h_vittorie_trasferta || 0}</strong>
                 </div>
 
-                <h4><i class="fas fa-chart-pie"></i> Statistiche Campionato</h4>
-                <div class="stat-box" style="border-left-color: var(--neon-blue);">
-                    Partite totali analizzate nel database: <strong>${totaliCampionato} match</strong><br>
-                    Media gol di questo campionato: <strong>2.64 gol/partita</strong>
+                <div class="data-section">
+                    <h3 style="margin:0 0 8px 0; font-size:13px; color:var(--text-muted); text-transform:uppercase;"><i class="fas fa-chart-bar"></i> Metriche Campionato Corrente</h3>
+                    Campione partite stimate: <strong>${match.campionato_partite_totali || 0} eventi</strong><br>
+                    Media Gol Reale del torneo: <strong>${match.campionato_media_gol || '0.00'} gol/match</strong>
                 </div>
 
-                <h4><i class="fas fa-calculator"></i> Informazioni Caricate</h4>
-                <div class="stat-box" style="border-left-color: var(--text-muted);">
-                    Stato: <strong>${match.status}</strong><br>
-                    Minuto: <strong>${match.minute || 'Da iniziare'}</strong><br>
-                    Quote Base rilevate: <strong>1:</strong> ${match.quota_1} | <strong>X:</strong> ${match.quota_x} | <strong>2:</strong> ${match.quota_2}
+                <div class="data-section">
+                    <h3 style="margin:0 0 8px 0; font-size:13px; color:var(--text-muted); text-transform:uppercase;"><i class="fas fa-percentage"></i> Distribuzione Probabilità 1X2</h3>
+                    <div class="prob-bar-container">
+                        <div class="prob-bar" style="width: ${p1}%; background: #3b82f6;">${p1}%</div>
+                        <div class="prob-bar" style="width: ${px}%; background: #6b7280;">${px}%</div>
+                        <div class="prob-bar" style="width: ${p2}%; background: #10b981;">${p2}%</div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px; font-family:monospace; color:var(--text-muted);">
+                        <span>(1) ${match.home_team}</span>
+                        <span>(X) Pareggio</span>
+                        <span>(2) ${match.away_team}</span>
+                    </div>
                 </div>
 
-                <div class="prediction-box">
-                    <h4 style="margin-top:0; color:var(--neon-green);"><i class="fas fa-brain"></i> Risultati Più Probabili</h4>
-                    <p style="margin:5px 0;">In base alle metriche prestazionali e ai volumi storici delle quote:</p>
-                    <ul style="padding-left:20px; margin:5px 0;">
-                        <li>Esito Consigliato: <strong style="color:white;">${match.pronostico}</strong></li>
-                        <li>Risultato Esatto Statistico: <strong style="color:white;">2-1 / 1-1</strong></li>
-                        <li>Fascia Multigol: <strong style="color:white;">2-3 Gol</strong></li>
+                <div class="prediction-matrix">
+                    <h3 style="margin:0 0 8px 0; font-size:14px; color:white; text-transform:uppercase;"><i class="fas fa-calculator"></i> Esiti ad Alta Probabilità Statistica</h3>
+                    <ul style="margin:0; padding-left:20px; font-size:14px; line-height:1.6; color:#e5e7eb;">
+                        ${esitiLista}
+                        <li>Fascia Multigol Ottimale: <strong>${match.fascia_multigol || 'Analisi Live'}</strong></li>
                     </ul>
                 </div>
             `;
         }
 
-        // Avvio e auto-aggiornamento ogni 30 secondi
-        caricaDati();
-        setInterval(caricaDati, 30000);
+        fetchEngineData();
+        setInterval(fetchEngineData, 30000);
     </script>
 </body>
 </html>
