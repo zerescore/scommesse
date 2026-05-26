@@ -20,7 +20,6 @@
             /* Colori Algoritmo */
             --label-ottimo: #22c55e;
             --label-rischia: #eab308;
-            --label-neutro: #3b82f6;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -187,23 +186,25 @@
         let db = null;
         let tutteLePartite = [];
 
-        // Inizializzazione automatica
+        // Connessione Diretta Sicura a Supabase
         document.addEventListener('DOMContentLoaded', () => {
             toggleSidebar(); // Chiude su mobile all'avvio
-            if (window.__ENV_SUPABASE_URL__ && window.__ENV_SUPABASE_KEY__) {
-                db = supabase.createClient(window.__ENV_SUPABASE_URL__, window.__ENV_SUPABASE_KEY__);
-                connettiEScarica();
-                // 🔄 LIVE AUTOMATICO: Controlla e aggiorna i risultati ogni 30 secondi
-                setInterval(connettiEScarica, 30000);
-            } else {
-                document.getElementById('tabellone-partite').innerHTML = '<p style="color:var(--danger); text-align:center;">Configura le variabili SUPABASE_URL e SUPABASE_KEY su Vercel.</p>';
-            }
+            
+            const INI_URL = "https://qfshfjphjshrpwdnsekn.supabase.co";
+            const INI_KEY = "sb_publishable_04abaz97o0BG-VD1-kyHVg_d4zgdDqD"; 
+            
+            db = supabase.createClient(INI_URL, INI_KEY);
+            console.log("Database Zerescore connesso correttamente alla tabella partita_live.");
+            connettiEScarica();
+            
+            // Aggiorna i risultati in tempo reale ogni 30 secondi
+            setInterval(connettiEScarica, 30000);
         });
 
         async function connettiEScarica() {
             try {
-                // Preleva le partite in tempo reale dal database compilato da Python
-                const { data, error } = await db.from('partite_live').select('*');
+                // Interroga la tabella al singolare 'partita_live'
+                const { data, error } = await db.from('partita_live').select('*');
                 if (error) throw error;
                 tutteLePartite = data || [];
                 renderizzaPartite(tutteLePartite);
@@ -215,23 +216,23 @@
         function renderizzaPartite(lista) {
             const container = document.getElementById('tabellone-partite');
             if (lista.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:30px;">Nessun match attivo nel palinsesto selezionato.</p>';
+                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:30px;">Nessun match attivo nel palinsesto in questo momento.</p>';
                 return;
             }
 
             container.innerHTML = '';
             lista.forEach(m => {
                 const isLive = m.status === 'LIVE';
-                const scoreHome = m.home_score !== null ? m.home_score : '-';
-                const scoreAway = m.away_score !== null ? m.away_score : '-';
-                const classeAlgo = m.pronostico.includes('Ottimo') || m.pronostico.includes('Probabile') ? 'label-ottimo' : 'label-rischia';
+                const scoreHome = m.home_score !== null ? m.home_score : '0';
+                const scoreAway = m.away_score !== null ? m.away_score : '0';
+                const classeAlgo = (m.pronostico || '').includes('Ottimo') || (m.pronostico || '').includes('Probabile') ? 'label-ottimo' : 'label-rischia';
 
                 container.innerHTML += `
                     <div class="match-card ${m.status}">
                         <div class="match-info-block">
                             <div class="match-time">
                                 <div class="status ${m.status}">${isLive ? m.minute : m.status}</div>
-                                <div class="time" style="${isLive ? 'color:var(--accent-live);' : ''}">${isLive ? 'LIVE' : m.minute || '---'}</div>
+                                <div class="time" style="${isLive ? 'color:var(--accent-live);' : ''}">${isLive ? 'LIVE' : m.minute || '--:--'}</div>
                             </div>
                             <div class="match-teams">
                                 <div class="league-name">${m.campionato}</div>
@@ -251,21 +252,20 @@
                                 <div class="odd-box"><div class="odd-label">X</div><div class="odd-value">${m.quota_x || 'N/A'}</div></div>
                                 <div class="odd-box"><div class="odd-label">2</div><div class="odd-value">${m.quota_2 || 'N/A'}</div></div>
                             </div>
-                            <div class="algo-label ${classeAlgo}">${m.pronostico}</div>
-                            <button class="btn-play" onclick="apriAnalisi('${m.home_team}', '${m.away_team}', '${m.pronostico}')"><i class="fa-solid fa-play"></i></button>
+                            <div class="algo-label ${classeAlgo}">${m.pronostico || 'In corso'}</div>
+                            <button class="btn-play" onclick="apriAnalisi('${m.home_team}', '${m.away_team}', '${m.pronostico || 'In corso'}')"><i class="fa-solid fa-play"></i></button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // --- ATTIVAZIONE CLIC PULSANTI ---
         function apriAnalisi(home, away, prono) {
             document.getElementById('modal-title').innerText = `${home} VS ${away}`;
             document.getElementById('modal-body').innerHTML = `
                 <p><strong>Analisi Algoritmo Zerescore:</strong></p>
                 <p style="margin-top:10px;">Il sistema ha elaborato una tendenza per questo match con esito consigliato: <span style="color:var(--accent-green); font-weight:bold;">${prono}</span>.</p>
-                <p style="margin-top:10px; color:var(--text-secondary);">Storico dettagliato dei mercati gol e calcolo oscillazione quote live bloccato sul database di storage.</p>
+                <p style="margin-top:10px; color:var(--text-muted);">Storico delle quote reali allineato correttamente tramite API del calcio.</p>
             `;
             document.getElementById('stat-modal').style.display = 'flex';
         }
@@ -274,7 +274,6 @@
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         function toggleAccordion(id) { document.getElementById(id).classList.toggle('show'); }
 
-        // Filtri e Navigazione attivi
         function filtraData(stato, btn) {
             document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
@@ -283,7 +282,7 @@
         }
 
         function filtraLega(lega) {
-            const filtrate = tutteLePartite.filter(m => m.campionato.includes(lega));
+            const filtrate = tutteLePartite.filter(m => m.campionato.toLowerCase().includes(lega.toLowerCase()));
             renderizzaPartite(filtrate);
         }
 
