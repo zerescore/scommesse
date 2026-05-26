@@ -2,324 +2,300 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zerescore OS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zerescore - Scommesse Calcio & Pronostici</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-base: #000000;
-            --bg-surface: #121212;
-            --bg-elevated: #1e1e1e;
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --accent: #10b981;
-            --danger: #ef4444;
-            --border: #27272a;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            overscroll-behavior-y: none;
-        }
-
-        /* --- 🔒 LOCK SCREEN --- */
-        #auth-overlay {
-            position: fixed; inset: 0;
-            background-color: var(--bg-base);
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            z-index: 9999; padding: 20px;
-        }
-        .auth-container {
-            width: 100%; max-width: 340px;
-            text-align: center;
-        }
-        .auth-icon { font-size: 40px; color: var(--accent); margin-bottom: 20px; }
-        .auth-title { font-size: 24px; font-weight: 600; margin: 0 0 8px 0; letter-spacing: -0.5px; }
-        .auth-subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 30px; }
-        
-        .pin-input {
-            width: 100%; background: var(--bg-surface);
-            border: 1px solid var(--border); border-radius: 12px;
-            padding: 16px; color: var(--text-primary);
-            font-size: 20px; text-align: center; letter-spacing: 4px;
-            margin-bottom: 16px; transition: border 0.2s;
-        }
-        .pin-input:focus { outline: none; border-color: var(--accent); }
-        
-        .btn-primary {
-            width: 100%; background: var(--accent); color: #000;
-            border: none; padding: 16px; border-radius: 12px;
-            font-size: 16px; font-weight: 600; cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .btn-primary:active { opacity: 0.8; }
-        
-        .remember-wrap {
-            display: flex; align-items: center; justify-content: center;
-            gap: 8px; font-size: 14px; color: var(--text-secondary);
-            margin: 20px 0; cursor: pointer;
-        }
-        .error-msg { color: var(--danger); font-size: 14px; display: none; margin-top: 15px; }
-
-        /* --- 📱 APP LAYOUT (MOBILE FIRST) --- */
-        #app-content { display: none; padding-bottom: 80px; }
-        
-        .topbar {
-            padding: 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border);
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky; top: 0; z-index: 100;
-        }
-        .topbar-title { font-size: 18px; font-weight: 600; }
-        .status-dot { height: 8px; width: 8px; background-color: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); }
-
-        .content-area { padding: 20px; }
-        
-        .section-title { font-size: 14px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 15px 0; font-weight: 600; }
-
-        /* Stat Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px; }
-        .stat-card {
-            background: var(--bg-surface); border: 1px solid var(--border);
-            padding: 16px; border-radius: 16px;
-        }
-        .stat-value { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
-        .stat-label { font-size: 12px; color: var(--text-secondary); }
-
-        /* Table/List for Mobile */
-        .data-card {
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: 16px; overflow: hidden;
-            margin-bottom: 20px;
-        }
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; white-space: nowrap; }
-        th { text-align: left; padding: 16px; color: var(--text-secondary); font-weight: 500; font-size: 12px; border-bottom: 1px solid var(--border); background: var(--bg-elevated); }
-        td { padding: 16px; border-bottom: 1px solid var(--border); }
-        tr:last-child td { border-bottom: none; }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: rgba(16, 185, 129, 0.15); color: var(--accent); }
-
-        /* Bottom Navigation (Mobile) */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: var(--bg-surface); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
-            z-index: 100;
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            color: var(--text-secondary); background: none; border: none; font-size: 10px; font-weight: 500; cursor: pointer;
-        }
-        .nav-item i { font-size: 20px; }
-        .nav-item.active { color: var(--accent); }
-
-        /* Desktop Adjustments - LA CURA PER LO SCHERMO GIGANTE */
-        @media (min-width: 768px) {
-            .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
-            .bottom-nav { display: none; }
-            #app-content { padding-bottom: 0; }
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --bg-hover: #334155;
+            --accent-green: #10b981;
+            --accent-live: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
             
-            /* IL RECINTO TATTICO PER IL PC */
-            .topbar { 
-                max-width: 1200px; 
-                margin: 0 auto; 
-                border-radius: 0 0 16px 16px;
-            }
-            .content-area { 
-                max-width: 1200px; 
-                margin: 0 auto; 
-                padding: 40px 20px; 
-            }
+            /* Colori Etichette Algoritmo Scommesse */
+            --label-ottimo: #22c55e;
+            --label-rischia: #eab308;
+            --label-pericolo: #ef4444;
+            --label-neutro: #3b82f6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* --- NAVBAR SUPERIORE --- */
+        .navbar {
+            background-color: var(--bg-panel);
+            height: 70px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .nav-brand { font-size: 22px; font-weight: 800; color: var(--accent-green); display: flex; align-items: center; gap: 10px; }
+        .nav-menu { display: flex; gap: 20px; }
+        .nav-item { color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 12px; border-radius: 6px; transition: background 0.2s; }
+        .nav-item:hover, .nav-item.active { background-color: var(--bg-hover); color: var(--accent-green); }
+        .nav-profile { display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; }
+
+        /* --- LAYOUT PRINCIPALE --- */
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+
+        /* --- SIDEBAR SINISTRA --- */
+        .sidebar {
+            width: 280px; background-color: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-section { padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .sidebar-title { font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 15px; font-weight: 700; }
+        .side-link { display: flex; align-items: center; gap: 12px; padding: 10px; color: var(--text-main); text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; cursor: pointer; }
+        .side-link:hover { background-color: var(--bg-hover); color: var(--accent-green); }
+        .side-link i { width: 20px; text-align: center; }
+        
+        .live-badge { background-color: var(--accent-live); color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; margin-left: auto; animation: pulse 2s infinite; }
+
+        /* Filtri Data (Pillole) */
+        .date-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+        .date-pill { background: var(--bg-hover); color: var(--text-main); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
+        .date-pill.active { background: rgba(16, 185, 129, 0.2); border-color: var(--accent-green); color: var(--accent-green); }
+        .date-pill.live-btn { border-color: var(--accent-live); color: var(--accent-live); background: rgba(239, 68, 68, 0.1); }
+        .date-pill.live-btn.active { background: var(--accent-live); color: #fff; }
+
+        /* --- AREA CENTRALE (TABELLONE) --- */
+        .content-area { flex: 1; padding: 20px; overflow-y: auto; background-color: var(--bg-dark); }
+        .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .content-header h1 { font-size: 24px; }
+
+        /* --- RIGHE PARTITE (MATCH CARDS) --- */
+        .match-card {
+            background-color: var(--bg-panel);
+            border-radius: 12px; padding: 15px; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-left: 4px solid transparent; transition: all 0.2s;
+        }
+        .match-card:hover { transform: translateX(4px); border-left-color: var(--accent-green); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .match-card.is-live { border-left-color: var(--accent-live); }
+        
+        /* Blocco Sinistro: Info Match */
+        .match-info-block { display: flex; flex: 1; align-items: center; gap: 20px; }
+        .match-time { width: 80px; text-align: center; }
+        .match-time .status { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        .status.live { color: var(--accent-live); animation: pulse 2s infinite; }
+        .status.scheduled { color: var(--text-muted); }
+        .match-time .time { font-size: 16px; font-weight: bold; }
+
+        .match-teams { flex: 1; }
+        .league-name { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .team-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+        .team-name { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .team-score { font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .team-score.live-score { color: var(--accent-live); }
+
+        /* Blocco Destro: Algoritmo e Quote */
+        .algo-block { display: flex; align-items: center; gap: 20px; }
+        .odds-container { display: flex; gap: 5px; }
+        .odd-box { background: var(--bg-hover); padding: 8px 12px; border-radius: 6px; text-align: center; min-width: 50px; cursor: pointer; transition: 0.2s; }
+        .odd-box:hover { background: var(--accent-green); color: #000; }
+        .odd-label { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
+        .odd-value { font-size: 14px; font-weight: bold; }
+        .odd-box:hover .odd-label { color: #000; }
+
+        .algo-label { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; text-align: center; min-width: 100px; text-transform: uppercase; }
+        .label-ottimo { background: rgba(34, 197, 94, 0.15); color: var(--label-ottimo); border: 1px solid rgba(34, 197, 94, 0.3); }
+        .label-rischia { background: rgba(234, 179, 8, 0.15); color: var(--label-rischia); border: 1px solid rgba(234, 179, 8, 0.3); }
+
+        .btn-play { background: var(--accent-green); color: #000; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-play:hover { transform: scale(1.1); }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        /* --- RESPONSIVE MOBILE --- */
+        @media (max-width: 1024px) {
+            .nav-menu { display: none; }
+            .mobile-menu-btn { display: block; }
+            .sidebar { position: absolute; z-index: 1000; height: calc(100vh - 70px); transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); box-shadow: 10px 0 20px rgba(0,0,0,0.5); }
+            
+            .match-card { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .match-info-block { width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+            .algo-block { width: 100%; justify-content: space-between; }
+            .btn-play { border-radius: 8px; width: auto; padding: 0 20px; }
         }
     </style>
 </head>
 <body>
 
-    <div id="auth-overlay">
-        <div class="auth-container">
-            <i class="fa-solid fa-fingerprint auth-icon"></i>
-            <h2 class="auth-title">Zerescore OS</h2>
-            <p class="auth-subtitle">Terminale di Scouting Autorizzato</p>
-            
-            <input type="password" class="pin-input" id="pin-input" placeholder="••••••••" onkeypress="handleEnter(event)">
-            
-            <label class="remember-wrap">
-                <input type="checkbox" id="remember-me">
-                Mantieni l'accesso su questo dispositivo
-            </label>
-
-            <button class="btn-primary" onclick="verificaAccesso()">Accedi</button>
-            <div id="auth-error" class="error-msg">PIN non valido.</div>
+    <header class="navbar">
+        <div class="nav-brand">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+            <i class="fa-solid fa-crosshairs"></i> Zerescore
         </div>
-    </div>
+        
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active"><i class="fa-solid fa-bolt"></i> Super 1X2</a>
+            <a href="#" class="nav-item"><i class="fa-solid fa-futbol"></i> Super Gol</a>
+            <a href="#" class="nav-item"><i class="fa-solid fa-microchip"></i> Crea Algoritmo</a>
+            <a href="#" class="nav-item" style="color: #fbbf24;"><i class="fa-solid fa-crown"></i> Area VIP</a>
+            <a href="#" class="nav-item"><i class="fa-solid fa-wallet"></i> Budget</a>
+        </nav>
 
-    <div id="app-content">
-        <div class="topbar">
-            <div class="topbar-title">Moneyball System</div>
-            <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary);">
-                <div class="status-dot"></div> Live
+        <div class="nav-profile">
+            <span style="font-size: 14px; font-weight: 600;">Profilo Utente</span>
+            <div style="width: 35px; height: 35px; background: var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000;">
+                <i class="fa-solid fa-user"></i>
             </div>
         </div>
+    </header>
 
-        <div class="content-area">
-            <h3 class="section-title">Overview</h3>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">11</div>
-                    <div class="stat-label">Leghe Attive</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">1.4k</div>
-                    <div class="stat-label">Giocatori</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" style="color: var(--accent)">88%</div>
-                    <div class="stat-label">Rating Serie D</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">24h</div>
-                    <div class="stat-label">Ultimo Sync</div>
+    <div class="main-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Menu Principale</div>
+                <a class="side-link live-link"><i class="fa-solid fa-tower-broadcast" style="color: var(--accent-live);"></i> Partite LIVE <span class="live-badge">4</span></a>
+                <a class="side-link active"><i class="fa-solid fa-list"></i> Tutti i Match</a>
+                <a class="side-link"><i class="fa-solid fa-star"></i> I Tuoi Preferiti</a>
+                <a class="side-link"><i class="fa-solid fa-trophy"></i> Top Pronostici</a>
+                <a class="side-link"><i class="fa-solid fa-clock-rotate-left"></i> Risultati</a>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Filtri Data</div>
+                <div class="date-filters">
+                    <button class="date-pill live-btn"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> LIVE</button>
+                    <button class="date-pill active">Oggi</button>
+                    <button class="date-pill">Domani</button>
+                    <button class="date-pill">Dopodomani</button>
                 </div>
             </div>
 
-            <h3 class="section-title" id="table-title">Target Attuali</h3>
-            <div class="data-card">
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Squadra / Target</th>
-                                <th>Stato</th>
-                                <th>Efficienza</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            </tbody>
-                    </table>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Campionati</div>
+                <a class="side-link"><img src="https://flagcdn.com/w20/it.png" width="16" alt="IT"> Serie A</a>
+                <a class="side-link"><img src="https://flagcdn.com/w20/gb-eng.png" width="16" alt="EN"> Premier League</a>
+                <a class="side-link"><img src="https://flagcdn.com/w20/es.png" width="16" alt="ES"> La Liga</a>
+                <a class="side-link"><img src="https://flagcdn.com/w20/it.png" width="16" alt="IT"> Serie D</a>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div class="content-header">
+                <h1>Palinsesto Zerescore</h1>
+            </div>
+
+            <div class="match-card is-live">
+                <div class="match-info-block">
+                    <div class="match-time">
+                        <div class="status live">68'</div>
+                        <div class="time" style="color: var(--accent-live);">LIVE</div>
+                    </div>
+                    <div class="match-teams">
+                        <div class="league-name">Italia • Serie A (Giornata 32)</div>
+                        <div class="team-row">
+                            <div class="team-name">Milan</div>
+                            <div class="team-score live-score">2</div>
+                        </div>
+                        <div class="team-row">
+                            <div class="team-name">Juventus</div>
+                            <div class="team-score live-score">1</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="algo-block">
+                    <div class="odds-container">
+                        <div class="odd-box"><div class="odd-label">1</div><div class="odd-value">1.15</div></div>
+                        <div class="odd-box"><div class="odd-label">X</div><div class="odd-value">6.50</div></div>
+                        <div class="odd-box"><div class="odd-label">2</div><div class="odd-value">18.00</div></div>
+                    </div>
+                    <div class="algo-label label-ottimo">Probabile 1</div>
+                    <button class="btn-play" title="Apri Pronostico"><i class="fa-solid fa-play"></i></button>
                 </div>
             </div>
-        </div>
 
-        <div class="bottom-nav">
-            <button class="nav-item active" onclick="switchTab(this, 'Target Attuali')">
-                <i class="fa-solid fa-chart-pie"></i>
-                <span>Dashboard</span>
-            </button>
-            <button class="nav-item" onclick="switchTab(this, 'Database Serie D')">
-                <i class="fa-solid fa-ranking-star"></i>
-                <span>Serie D</span>
-            </button>
-            <button class="nav-item" onclick="switchTab(this, 'Impostazioni')">
-                <i class="fa-solid fa-gear"></i>
-                <span>Setup</span>
-            </button>
-        </div>
+            <div class="match-card">
+                <div class="match-info-block">
+                    <div class="match-time">
+                        <div class="status scheduled">OGGI</div>
+                        <div class="time">20:45</div>
+                    </div>
+                    <div class="match-teams">
+                        <div class="league-name">Inghilterra • Premier League (Giornata 30)</div>
+                        <div class="team-row">
+                            <div class="team-name">Arsenal</div>
+                            <div class="team-score">-</div>
+                        </div>
+                        <div class="team-row">
+                            <div class="team-name">Chelsea</div>
+                            <div class="team-score">-</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="algo-block">
+                    <div class="odds-container">
+                        <div class="odd-box"><div class="odd-label">O 2.5</div><div class="odd-value">1.72</div></div>
+                        <div class="odd-box"><div class="odd-label">U 2.5</div><div class="odd-value">2.10</div></div>
+                    </div>
+                    <div class="algo-label label-rischia">Rischia Over</div>
+                    <button class="btn-play" title="Apri Pronostico"><i class="fa-solid fa-play"></i></button>
+                </div>
+            </div>
+
+            <div class="match-card" style="opacity: 0.7;">
+                <div class="match-info-block">
+                    <div class="match-time">
+                        <div class="status scheduled">FINITA</div>
+                        <div class="time">FT</div>
+                    </div>
+                    <div class="match-teams">
+                        <div class="league-name">Italia • Serie D</div>
+                        <div class="team-row">
+                            <div class="team-name">Belvedere Marniga Utd</div>
+                            <div class="team-score">3</div>
+                        </div>
+                        <div class="team-row">
+                            <div class="team-name">FC Avversario</div>
+                            <div class="team-score">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="algo-block">
+                    <div class="odds-container">
+                        <div class="odd-box"><div class="odd-label">1</div><div class="odd-value">1.45</div></div>
+                        <div class="odd-box"><div class="odd-label">X</div><div class="odd-value">4.20</div></div>
+                        <div class="odd-box"><div class="odd-label">2</div><div class="odd-value">7.50</div></div>
+                    </div>
+                    <div class="algo-label label-ottimo" style="background: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border-color);">Vinta 1</div>
+                    <button class="btn-play" style="background: var(--bg-hover); color: var(--text-main);"><i class="fa-solid fa-check"></i></button>
+                </div>
+            </div>
+
+        </main>
     </div>
 
     <script>
-        // Logica blindata
-        const SYS_PIN = "Mister2026";
-        
+        // Funzione per il menu mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // ==========================================
+        // SUPABASE: PURO ARCHIVIO DATI
+        // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('zs_auth') === 'true') {
-                sbloccaUI();
+            if (window.__ENV_SUPABASE_URL__ && window.__ENV_SUPABASE_KEY__) {
+                const supabase = window.supabase.createClient(window.__ENV_SUPABASE_URL__, window.__ENV_SUPABASE_KEY__);
+                console.log("Database Zerescore connesso (Modalità Lettura).");
             }
         });
-
-        function sbloccaUI() {
-            document.getElementById("auth-overlay").style.display = "none";
-            document.getElementById("app-content").style.display = "block";
-            
-            // Inizializzazione Supabase
-            if (window.__ENV_SUPABASE_URL__ && window.__ENV_SUPABASE_KEY__) {
-                window.zsDB = supabase.createClient(window.__ENV_SUPABASE_URL__, window.__ENV_SUPABASE_KEY__);
-                console.log("Database connesso.");
-                
-                // CARICA I DATI APPENA SBLOCCATO!
-                caricaDatiDatabase();
-            }
-        }
-
-        function verificaAccesso() {
-            const pin = document.getElementById("pin-input").value;
-            const errore = document.getElementById("auth-error");
-            
-            if (pin === SYS_PIN) {
-                if (document.getElementById("remember-me").checked) {
-                    localStorage.setItem('zs_auth', 'true');
-                }
-                sbloccaUI();
-            } else {
-                errore.style.display = "block";
-                document.getElementById("pin-input").value = "";
-            }
-        }
-
-        function handleEnter(e) {
-            if (e.key === "Enter") verificaAccesso();
-        }
-
-        function switchTab(btn, title) {
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('table-title').innerText = title;
-        }
-
-        // --- FUNZIONE PER GLI STORICI DA SUPABASE ---
-        async function caricaDatiDatabase() {
-            const corpoTabella = document.querySelector("tbody");
-            corpoTabella.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin" style="color: var(--accent); font-size: 24px;"></i><br><br><span style="color: var(--text-secondary);">Estrazione dati storici in corso...</span></td></tr>';
-
-            if (!window.zsDB) {
-                corpoTabella.innerHTML = '<tr><td colspan="3" style="text-align:center; color: var(--danger); padding: 20px;">Database non connesso.</td></tr>';
-                return;
-            }
-
-            try {
-                // =====================================================================
-                // ⚠️ ATTENZIONE MISTER: Modifica 'nome_tua_tabella' con il nome 
-                // esatto della tabella che hai creato dentro Supabase!
-                // =====================================================================
-                const { data, error } = await window.zsDB.from('nome_tua_tabella').select('*').limit(50);
-
-                if (error) throw error;
-
-                if (data && data.length > 0) {
-                    corpoTabella.innerHTML = ''; 
-                    data.forEach(riga => {
-                        // =====================================================================
-                        // ⚠️ MODIFICA I NOMI DELLE COLONNE CON I NOMI REALI CHE USI SU SUPABASE
-                        // =====================================================================
-                        const nomeSquadra = riga.nome_squadra || 'Squadra Sconosciuta';
-                        const efficienza = riga.valore_efficienza || 'N/A';
-                        const stato = 'Storico Attivo'; 
-
-                        corpoTabella.innerHTML += `
-                            <tr>
-                                <td><strong>${nomeSquadra}</strong></td>
-                                <td><span class="badge">${stato}</span></td>
-                                <td>${efficienza}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    corpoTabella.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: var(--text-secondary);">Nessun dato trovato su Supabase. Lancia lo script Python.</td></tr>';
-                }
-            } catch (err) {
-                console.error("Errore Supabase:", err);
-                corpoTabella.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--danger); padding: 20px;">Errore: ${err.message}</td></tr>`;
-            }
-        }
     </script>
 </body>
 </html>
