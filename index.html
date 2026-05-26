@@ -126,6 +126,8 @@
     </div>
 
     <script>
+        // Definiamo solo la password qui. La variabile 'supabase' NON viene creata qui
+        // per evitare conflitti con le dichiarazioni presenti più in basso nel file.
         const PASS_SICURA = "Mister2026"; 
 
         // CONTROLLO AUTOMATICO RICORDAMI ALL'AVVIO
@@ -140,6 +142,9 @@
             document.getElementById("auth-overlay").style.display = "none";
             document.getElementById("main-app-content").style.display = "block";
             console.log("Accesso eseguito. Terminale sbloccato.");
+            
+            // Se sotto nel codice hai una funzione per caricare le tabelle (es. inizializzaTabella() o caricaDati()), 
+            // puoi richiamarla qui per far partire i dati subito dopo lo sblocco.
         }
 
         function validaAccesso() {
