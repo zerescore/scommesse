@@ -1,24 +1,13 @@
 import requests
 
-API_KEY = "dbbb7986bcaeb46218aac93cc169e420" 
-url = "https://v3.football.api-sports.io/status"
+API_KEY = "dbbb7986bcaeb46218aac93cc169e420"
+url = "https://v3.football.api-sports.io/teams?league=135&season=2024"
 
 headers = {
-    'x-apisports-key': API_KEY
+    "x-rapidapi-key": API_KEY,
+    "x-rapidapi-host": "v3.football.api-sports.io"
 }
 
-print("Sto contattando il server di API-Football...")
-response = requests.get(url, headers=headers)
-
-if response.status_code == 200:
-    dati = response.json()
-    if dati.get('errors'):
-        print("\n❌ Errore dall'API:", dati['errors'])
-    else:
-        account_info = dati['response']['account']
-        richieste_info = dati['response']['requests']
-        print("\n--- ✅ CONNESSIONE RIUSCITA! ---")
-        print(f"Account di: {account_info['firstname']} {account_info['lastname']}")
-        print(f"Chiamate usate oggi: {richieste_info['current']} su {richieste_info['limit_day']}")
-else:
-    print(f"\n❌ Errore di rete: {response.status_code}")
+risposta = requests.get(url, headers=headers)
+print("\n🔍 RISPOSTA REALE DEL SERVER API-FOOTBALL:\n")
+print(risposta.json())
