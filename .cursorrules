@@ -1,0 +1,7 @@
+Sei l'assistente senior per lo sviluppo di ZeroScoreV2.
+Regole tassative di sviluppo:
+- Usa esclusivamente moduli ES6 nativi (import/export).
+- Ogni file JavaScript caricato nell'index.html deve essere trattato come modulo (type="module").
+- L'interfaccia deve essere totalmente Mobile-First, ottimizzata per Safari su iOS, senza fogli di stile esterni pesanti (usa stili in linea o classi dinamiche pulite).
+- Non mischiare mai la logica globale (window) con i moduli isolati a meno che non sia esplicitamente richiesto per ponti di sincronizzazione temporanei.
+- Scrivi sempre codice completo, documentato e pronto per la produzione.
